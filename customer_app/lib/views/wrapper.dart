@@ -1,6 +1,8 @@
+import 'package:customer_app/l18n/locale_keys.g.dart';
 import 'package:customer_app/views/home/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class Wrapper extends StatefulWidget {
   const Wrapper({super.key});
@@ -43,42 +45,41 @@ class WrapperBodyItem {
 
 List<WrapperBodyItem> _wrapperBodyItems = [
   WrapperBodyItem(
-    bottomNavigationBarItem: const BottomNavigationBarItem(
-      icon: Icon(Ionicons.home_outline),
-      activeIcon: Icon(Ionicons.home),
-      label: 'Home',
-    ),
+    bottomNavigationBarItem: BottomNavigationBarItem(
+        icon: const Icon(Ionicons.home_outline),
+        activeIcon: const Icon(Ionicons.home),
+        label: LocaleKeys.HOME.tr()),
     body: const HomePage(),
   ),
   WrapperBodyItem(
-    bottomNavigationBarItem: const BottomNavigationBarItem(
-      icon: Icon(Ionicons.list_outline),
-      activeIcon: Icon(Ionicons.list),
-      label: 'Orders',
+    bottomNavigationBarItem: BottomNavigationBarItem(
+      icon: const Icon(Ionicons.list_outline),
+      activeIcon: const Icon(Ionicons.list),
+      label: LocaleKeys.ORDERS.tr(),
     ),
     body: const Center(child: Text('Orders')),
   ),
   WrapperBodyItem(
-    bottomNavigationBarItem: const BottomNavigationBarItem(
-      icon: Icon(Ionicons.chatbubble_ellipses_outline),
-      activeIcon: Icon(Ionicons.chatbubble_ellipses),
-      label: 'Message',
+    bottomNavigationBarItem: BottomNavigationBarItem(
+      icon: const Icon(Ionicons.chatbubble_ellipses_outline),
+      activeIcon: const Icon(Ionicons.chatbubble_ellipses),
+      label: LocaleKeys.MESSAGES.tr(),
     ),
     body: const Center(child: Text('Message')),
   ),
   WrapperBodyItem(
-    bottomNavigationBarItem: const BottomNavigationBarItem(
-      icon: Icon(Ionicons.wallet_outline),
-      activeIcon: Icon(Ionicons.wallet),
-      label: 'Wallet',
+    bottomNavigationBarItem: BottomNavigationBarItem(
+      icon: const Icon(Ionicons.wallet_outline),
+      activeIcon: const Icon(Ionicons.wallet),
+      label: LocaleKeys.WALLET.tr(),
     ),
     body: const Center(child: Text('Wallet')),
   ),
   WrapperBodyItem(
-    bottomNavigationBarItem: const BottomNavigationBarItem(
-      icon: Icon(Ionicons.person_outline),
-      activeIcon: Icon(Ionicons.person),
-      label: 'Profile',
+    bottomNavigationBarItem: BottomNavigationBarItem(
+      icon: const Icon(Ionicons.person_outline),
+      activeIcon: const Icon(Ionicons.person),
+      label: LocaleKeys.PROFILE.tr(),
     ),
     body: const Center(child: Text('Profile')),
   ),
