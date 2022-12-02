@@ -6,6 +6,7 @@ class ThemeConstant {
 
   static const Color primaryColor = Color(0xff1bab4b);
   static const Color secondaryColor = Color(0xffa5deb7);
+  static const Color darkBackgroundColor = Color(0xff181a20);
 
   static const double defaultPadding = 16;
   static const double defaultRadius = 16;
@@ -34,12 +35,18 @@ ThemeData _buildTheme(Brightness brightness, Color primaryColor) {
   return ThemeData(
     brightness: brightness,
     primarySwatch: primarySwatch,
+    scaffoldBackgroundColor: brightness == Brightness.dark
+        ? ThemeConstant.darkBackgroundColor
+        : null,
     colorScheme: brightness == Brightness.dark
         ? ColorScheme.dark(primary: primaryColor, secondary: primaryColor)
         : ColorScheme.light(primary: primaryColor),
     appBarTheme: AppBarTheme(
       elevation: 0,
       backgroundColor: Colors.transparent,
+      foregroundColor: brightness == Brightness.dark
+          ? null
+          : ThemeConstant.darkBackgroundColor,
       systemOverlayStyle: brightness == Brightness.dark
           ? SystemUiOverlayStyle.light
           : SystemUiOverlayStyle.dark,
@@ -48,6 +55,9 @@ ThemeData _buildTheme(Brightness brightness, Color primaryColor) {
       style: ElevatedButton.styleFrom(
         elevation: 2,
         shadowColor: ThemeConstant.secondaryColor.withOpacity(0.2),
+        padding: const EdgeInsets.symmetric(
+            vertical: ThemeConstant.defaultPadding * 0.8,
+            horizontal: ThemeConstant.defaultPadding),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(ThemeConstant.defaultRadius),
         ),
@@ -57,6 +67,9 @@ ThemeData _buildTheme(Brightness brightness, Color primaryColor) {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         elevation: 0,
+        padding: const EdgeInsets.symmetric(
+            vertical: ThemeConstant.defaultPadding * 0.8,
+            horizontal: ThemeConstant.defaultPadding),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(ThemeConstant.defaultRadius),
         ),

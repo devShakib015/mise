@@ -13,7 +13,7 @@ class HomePage extends StatelessWidget {
     return SafeArea(
       child: ListView(
         padding: const EdgeInsets.all(ThemeConstant.defaultPadding),
-        children: [
+        children: const [
           HomePageTopBar(),
           DefaultVerticalSpacer(),
           HomeSearchBar(),
