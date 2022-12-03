@@ -40,6 +40,7 @@ dependencies:
   url_launcher: ^6.1.7
   intl: ^0.17.0
   easy_localization: ^3.0.1
+  intl_phone_number_input: ^0.7.1
 
 dev_dependencies:
   flutter_test:

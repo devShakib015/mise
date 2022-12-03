@@ -1,12 +1,23 @@
+import 'package:customer_app/helpers/app_constants.dart';
 import 'package:customer_app/helpers/theme_constants.dart';
 import 'package:customer_app/views/auth/login_page.dart';
+import 'package:customer_app/widgets/custom_dialogs.dart';
 import 'package:customer_app/widgets/custom_spacer.dart';
 import 'package:customer_app/widgets/custom_widgets.dart';
+import 'package:customer_app/widgets/field_card.dart';
 import 'package:flutter/material.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:ionicons/ionicons.dart';
 
-class SignInWithPhonePage extends StatelessWidget {
+class SignInWithPhonePage extends StatefulWidget {
   const SignInWithPhonePage({super.key});
+
+  @override
+  State<SignInWithPhonePage> createState() => _SignInWithPhonePageState();
+}
+
+class _SignInWithPhonePageState extends State<SignInWithPhonePage> {
+  final _phoneController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +41,33 @@ class SignInWithPhonePage extends StatelessWidget {
                     ),
               ),
               const SizedBox(height: ThemeConstant.defaultPadding * 3),
-              const SizedBox(height: ThemeConstant.defaultPadding * 3),
-              ElevatedButton(onPressed: () {}, child: const Text("Sign in")),
+              FieldCard(
+                child: InternationalPhoneNumberInput(
+                  countries: AppConstants.appCountryCodes,
+                  onInputChanged: (PhoneNumber number) {},
+                  ignoreBlank: false,
+                  autoValidateMode: AutovalidateMode.onUserInteraction,
+                  textFieldController: _phoneController,
+                  validator: (value) {
+                    return null;
+                  },
+                  spaceBetweenSelectorAndTextField: 0,
+                  formatInput: true,
+                  textAlignVertical: TextAlignVertical.top,
+                  inputDecoration: const InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
+                    hintText: "1234567890",
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(
+                      signed: true, decimal: true),
+                ),
+              ),
+              const SizedBox(height: ThemeConstant.defaultPadding),
+              ElevatedButton(
+                onPressed: () {},
+                child: const Text("Sign in"),
+              ),
               const SizedBox(height: ThemeConstant.defaultPadding * 2),
               Row(
                 children: [

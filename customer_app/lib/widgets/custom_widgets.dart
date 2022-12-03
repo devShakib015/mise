@@ -16,3 +16,23 @@ class StaticLogoWidget extends StatelessWidget {
     );
   }
 }
+
+class CustomLoadingWidget extends StatelessWidget {
+  final Color? color;
+  final double scale;
+  const CustomLoadingWidget({
+    Key? key,
+    this.color,
+    this.scale = 2.5,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      Images.loader,
+      width: ThemeConstant.defaultPadding * scale,
+      height: ThemeConstant.defaultPadding * scale,
+      color: color ?? Theme.of(context).colorScheme.primary,
+    );
+  }
+}
