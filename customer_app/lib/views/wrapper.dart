@@ -1,5 +1,6 @@
 import 'package:customer_app/l18n/locale_keys.g.dart';
 import 'package:customer_app/views/home/home_page.dart';
+import 'package:customer_app/views/profile/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -81,6 +82,6 @@ List<WrapperBodyItem> _wrapperBodyItems = [
       activeIcon: const Icon(Ionicons.person),
       label: LocaleKeys.PROFILE.tr(),
     ),
-    body: const Center(child: Text('Profile')),
+    body: const ProfilePage(),
   ),
 ];

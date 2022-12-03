@@ -43,6 +43,8 @@ ThemeData _buildTheme(Brightness brightness, Color primaryColor) {
         : ColorScheme.light(primary: primaryColor),
     appBarTheme: AppBarTheme(
       elevation: 0,
+      centerTitle: false,
+      titleSpacing: 0,
       backgroundColor: Colors.transparent,
       foregroundColor: brightness == Brightness.dark
           ? null

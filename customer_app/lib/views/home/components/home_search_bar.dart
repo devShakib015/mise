@@ -18,7 +18,10 @@ class HomeSearchBar extends StatelessWidget {
       child: FieldCard(
         prefixIcon: Ionicons.search_outline,
         child: Padding(
-          padding: const EdgeInsets.all(ThemeConstant.defaultPadding),
+          padding: const EdgeInsets.symmetric(
+            horizontal: ThemeConstant.defaultPadding,
+            vertical: ThemeConstant.defaultPadding / 1.5,
+          ),
           child: Text(
             "What are you craving?",
             style: Theme.of(context).textTheme.subtitle2!.copyWith(

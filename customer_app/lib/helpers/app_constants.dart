@@ -18,3 +18,21 @@ class AppConstants {
     Locale('bn'),
   ];
 }
+
+List<String> foodItemNames = [
+  "Mixed Salad with Chicken",
+  "Vegearian Noodels",
+  "Chicken Burger",
+  "Chicken Pizza",
+  "Chicken Biryani",
+  "Chicken Fried Rice",
+  "Chicken Kebab",
+  "Chicken Korma",
+  "Chicken Noodles",
+  "Chicken Pasta",
+  "Chicken Sandwich",
+  "Vegetable Pizza",
+  "Vegetable Biryani",
+  "Egg Fried Rice",
+  "Mozarella Cheese Pizza",
+];
