@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:customer_app/helpers/app_constants.dart';
 import 'package:customer_app/helpers/images.dart';
 import 'package:customer_app/helpers/theme_constants.dart';
@@ -197,6 +198,76 @@ class FoodItemListTile extends StatelessWidget {
                     const DefaultVerticalSpacer(isHalf: true),
                   ],
                 ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CartItemListTile extends StatelessWidget {
+  const CartItemListTile({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    double cardHeight = MediaQuery.of(context).size.width * 0.3;
+
+    return SizedBox(
+      height: cardHeight,
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(ThemeConstant.defaultPadding / 2),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius:
+                    BorderRadius.circular(ThemeConstant.defaultRadius),
+                child: Image.asset(
+                  Images.foodItems[Random().nextInt(Images.foodItems.length)],
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const DefaultHorizontalSpacer(),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const DefaultVerticalSpacer(isHalf: true),
+                    Text(
+                      foodItemNames[Random().nextInt(foodItemNames.length)],
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyText1!
+                          .copyWith(fontWeight: FontWeight.bold, fontSize: 17),
+                    ),
+                    const Spacer(),
+                    Text(
+                        "${Random().nextInt(5) + 1} items x \$${(Random().nextDouble() * 20 + 5).toStringAsFixed(2)}",
+                        style: Theme.of(context).textTheme.caption!),
+                    const Spacer(),
+                    Text(
+                      "\$${(Random().nextDouble() * 100 + 5).toStringAsFixed(2)}",
+                      style: Theme.of(context).textTheme.headline6!.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                    ),
+                    const DefaultVerticalSpacer(isHalf: true),
+                  ],
+                ),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: Icon(Ionicons.trash_outline,
+                    color: Theme.of(context).colorScheme.error),
               ),
             ],
           ),

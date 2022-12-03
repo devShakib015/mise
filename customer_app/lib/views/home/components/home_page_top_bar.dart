@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:customer_app/helpers/theme_constants.dart';
+import 'package:customer_app/views/home/cart_page.dart';
+import 'package:customer_app/views/home/notification_page.dart';
 import 'package:customer_app/widgets/custom_spacer.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
@@ -47,8 +49,21 @@ class HomePageTopBar extends StatelessWidget {
         ),
         const DefaultHorizontalSpacer(),
         IconButton(
-            onPressed: () {}, icon: const Icon(Ionicons.notifications_outline)),
-        IconButton(onPressed: () {}, icon: const Icon(Ionicons.bag_outline)),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const NotificationPage()));
+          },
+          icon: const Icon(Ionicons.notifications_outline),
+        ),
+        IconButton(
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const CartPage()));
+          },
+          icon: const Icon(Ionicons.bag_outline),
+        ),
       ],
     );
   }

@@ -6,7 +6,8 @@ import 'package:customer_app/views/profile/components/edit_profile_page.dart';
 import 'package:customer_app/views/profile/components/invite_friends.dart';
 import 'package:customer_app/views/profile/components/language_page.dart';
 import 'package:customer_app/views/profile/components/my_favorite_foods_page.dart';
-import 'package:customer_app/views/profile/components/notification_page.dart';
+import 'package:customer_app/views/home/notification_page.dart';
+import 'package:customer_app/views/profile/components/notification_settings_page.dart';
 import 'package:customer_app/views/profile/components/payment_methods_page.dart';
 import 'package:customer_app/views/profile/components/security_page.dart';
 import 'package:customer_app/widgets/custom_dialogs.dart';
@@ -102,7 +103,7 @@ class ProfilePage extends StatelessWidget {
               title: 'Notifications',
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const NotificationPage()));
+                    builder: (context) => const NotificationSettingsPage()));
               },
             ),
             //Security
