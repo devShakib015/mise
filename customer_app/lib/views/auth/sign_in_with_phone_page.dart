@@ -62,7 +62,7 @@ class _SignInWithPhonePageState extends State<SignInWithPhonePage> {
                       signed: true, decimal: true),
                 ),
               ),
-              const SizedBox(height: ThemeConstant.defaultPadding),
+              const DefaultVerticalSpacer(),
               ElevatedButton(
                 onPressed: () {},
                 child: const Text("Sign in"),
