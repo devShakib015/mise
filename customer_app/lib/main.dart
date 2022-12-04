@@ -28,7 +28,8 @@ class MyApp extends StatelessWidget {
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       theme: ThemeConstant.getTheme(Brightness.light).copyWith(
-          textTheme: GoogleFonts.ralewayTextTheme(Theme.of(context).textTheme)),
+          textTheme:
+              GoogleFonts.titilliumWebTextTheme(Theme.of(context).textTheme)),
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,

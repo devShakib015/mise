@@ -13,65 +13,59 @@ class HomePageTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: ThemeConstant.defaultPadding,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          const CircleAvatar(
-            radius: ThemeConstant.defaultRadius * 1.5,
-            backgroundImage: CachedNetworkImageProvider(
-                "https://newprofilepic2.photo-cdn.net//assets/images/article/profile.jpg"),
-          ),
-          const DefaultHorizontalSpacer(),
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                //TODO: Select deliver address
-              },
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Deliver to",
-                      style: Theme.of(context).textTheme.caption),
-                  Row(
-                    children: [
-                      Text("Home",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyText1!
-                              .copyWith(fontWeight: FontWeight.bold)),
-                      const SizedBox(width: ThemeConstant.defaultPadding / 4),
-                      Icon(Ionicons.caret_down,
-                          size: 16,
-                          color: Theme.of(context).colorScheme.primary),
-                    ],
-                  ),
-                ],
-              ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        const DefaultHorizontalSpacer(),
+        const CircleAvatar(
+          radius: ThemeConstant.defaultRadius * 1.5,
+          backgroundImage: CachedNetworkImageProvider(
+              "https://newprofilepic2.photo-cdn.net//assets/images/article/profile.jpg"),
+        ),
+        const DefaultHorizontalSpacer(),
+        Expanded(
+          child: GestureDetector(
+            onTap: () {
+              //TODO: Select deliver address
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Deliver to", style: Theme.of(context).textTheme.caption),
+                Row(
+                  children: [
+                    Text("Home",
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyText1!
+                            .copyWith(fontWeight: FontWeight.bold)),
+                    const SizedBox(width: ThemeConstant.defaultPadding / 4),
+                    Icon(Ionicons.caret_down,
+                        size: 16, color: Theme.of(context).colorScheme.primary),
+                  ],
+                ),
+              ],
             ),
           ),
-          const DefaultHorizontalSpacer(),
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const NotificationPage()));
-            },
-            icon: const Icon(Ionicons.notifications_outline),
-          ),
-          IconButton(
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const CartPage()));
-            },
-            icon: const Icon(Ionicons.bag_outline),
-          ),
-        ],
-      ),
+        ),
+        const DefaultHorizontalSpacer(),
+        IconButton(
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const NotificationPage()));
+          },
+          icon: const Icon(Ionicons.notifications_outline),
+        ),
+        IconButton(
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const CartPage()));
+          },
+          icon: const Icon(Ionicons.bag_outline),
+        ),
+      ],
     );
   }
 }

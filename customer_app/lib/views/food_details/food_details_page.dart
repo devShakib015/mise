@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:customer_app/helpers/app_constants.dart';
 import 'package:customer_app/helpers/images.dart';
 import 'package:customer_app/helpers/theme_constants.dart';
+import 'package:customer_app/views/food_details/food_reviews_page.dart';
 import 'package:customer_app/widgets/custom_spacer.dart';
 import 'package:customer_app/widgets/custom_widgets.dart';
 import 'package:flutter/material.dart';
@@ -109,7 +110,13 @@ class _FoodDetailsPageState extends State<FoodDetailsPage> {
             const Divider(height: 0),
             ListTile(
               dense: true,
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const RatingAndReviewsPage(),
+                  ),
+                );
+              },
               title: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [

@@ -43,6 +43,7 @@ dependencies:
   intl_phone_number_input: ^0.7.1
   card_swiper: ^2.0.4
   google_fonts: ^3.0.1
+  awesome_rating: ^0.0.4
 
 dev_dependencies:
   flutter_test:
