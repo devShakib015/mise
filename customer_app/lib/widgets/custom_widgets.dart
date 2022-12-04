@@ -36,3 +36,35 @@ class CustomLoadingWidget extends StatelessWidget {
     );
   }
 }
+
+class CustomIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  final bool isFilled;
+  const CustomIconButton({
+    Key? key,
+    required this.icon,
+    required this.onTap,
+    this.isFilled = true,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(ThemeConstant.defaultPadding / 2),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: isFilled ? Theme.of(context).colorScheme.primary : null,
+          border: isFilled
+              ? null
+              : Border.all(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+        ),
+        child: Icon(icon, color: isFilled ? Colors.white : null, size: 20),
+      ),
+    );
+  }
+}

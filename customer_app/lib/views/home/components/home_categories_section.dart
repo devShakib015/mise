@@ -14,7 +14,7 @@ class HomeCategoriesSection extends StatelessWidget {
     return Wrap(
       spacing: ThemeConstant.defaultPadding / 2,
       runSpacing: ThemeConstant.defaultPadding,
-      alignment: WrapAlignment.spaceBetween,
+      alignment: WrapAlignment.center,
       children: categories.take(8).map((e) {
         return CategoryItemWidget(category: e);
       }).toList(),

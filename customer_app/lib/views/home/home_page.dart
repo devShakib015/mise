@@ -12,12 +12,13 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: ListView(
+    return Scaffold(
+      appBar: AppBar(
+        title: HomePageTopBar(),
+      ),
+      body: ListView(
         padding: const EdgeInsets.all(ThemeConstant.defaultPadding),
         children: const [
-          HomePageTopBar(),
-          DefaultVerticalSpacer(),
           HomeSearchBar(),
           BannersAndCategoriesSection(),
           DiscountGuaranteedSection(),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ThemeConstant {
   ThemeConstant._();
@@ -57,13 +58,12 @@ ThemeData _buildTheme(Brightness brightness, Color primaryColor) {
       style: ElevatedButton.styleFrom(
         elevation: 2,
         shadowColor: ThemeConstant.secondaryColor.withOpacity(0.2),
-        padding: const EdgeInsets.symmetric(
-            vertical: ThemeConstant.defaultPadding * 0.8,
-            horizontal: ThemeConstant.defaultPadding),
+        padding: const EdgeInsets.all(ThemeConstant.defaultPadding),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(ThemeConstant.defaultRadius),
         ),
         foregroundColor: Colors.white,
+        textStyle: TextStyle(fontWeight: FontWeight.bold),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
