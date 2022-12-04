@@ -1,7 +1,6 @@
 import 'package:customer_app/helpers/app_constants.dart';
 import 'package:customer_app/helpers/theme_constants.dart';
 import 'package:customer_app/views/auth/login_page.dart';
-import 'package:customer_app/widgets/custom_dialogs.dart';
 import 'package:customer_app/widgets/custom_spacer.dart';
 import 'package:customer_app/widgets/custom_widgets.dart';
 import 'package:customer_app/widgets/field_card.dart';

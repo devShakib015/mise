@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 class InviteFriendsPage extends StatelessWidget {
   const InviteFriendsPage({super.key});
@@ -12,7 +10,7 @@ class InviteFriendsPage extends StatelessWidget {
         title: const Text('Invite Friends'),
       ),
       body: ListView(
-        children: [],
+        children: const [],
       ),
     );
   }

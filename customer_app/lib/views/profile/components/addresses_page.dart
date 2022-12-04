@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 class AddressesPage extends StatelessWidget {
   const AddressesPage({super.key});
@@ -12,7 +10,7 @@ class AddressesPage extends StatelessWidget {
         title: const Text('Addresses'),
       ),
       body: ListView(
-        children: [],
+        children: const [],
       ),
     );
   }

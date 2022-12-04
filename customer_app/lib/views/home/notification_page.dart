@@ -10,7 +10,7 @@ class NotificationPage extends StatelessWidget {
         title: const Text('Notification'),
       ),
       body: ListView(
-        children: [],
+        children: const [],
       ),
     );
   }

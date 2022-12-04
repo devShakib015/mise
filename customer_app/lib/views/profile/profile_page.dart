@@ -6,16 +6,11 @@ import 'package:customer_app/views/profile/components/edit_profile_page.dart';
 import 'package:customer_app/views/profile/components/invite_friends.dart';
 import 'package:customer_app/views/profile/components/language_page.dart';
 import 'package:customer_app/views/profile/components/my_favorite_foods_page.dart';
-import 'package:customer_app/views/home/notification_page.dart';
 import 'package:customer_app/views/profile/components/notification_settings_page.dart';
 import 'package:customer_app/views/profile/components/payment_methods_page.dart';
 import 'package:customer_app/views/profile/components/security_page.dart';
-import 'package:customer_app/widgets/custom_dialogs.dart';
 import 'package:customer_app/widgets/custom_spacer.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:ionicons/ionicons.dart';
 
 class ProfilePage extends StatelessWidget {

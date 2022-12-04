@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 class EditProfilePage extends StatelessWidget {
   const EditProfilePage({super.key});
@@ -12,7 +10,7 @@ class EditProfilePage extends StatelessWidget {
         title: const Text('Edit Profile'),
       ),
       body: ListView(
-        children: [],
+        children: const [],
       ),
     );
   }

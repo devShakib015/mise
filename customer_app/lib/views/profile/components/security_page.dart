@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 class SecurityPage extends StatelessWidget {
   const SecurityPage({super.key});
@@ -12,7 +10,7 @@ class SecurityPage extends StatelessWidget {
         title: const Text('Security'),
       ),
       body: ListView(
-        children: [],
+        children: const [],
       ),
     );
   }

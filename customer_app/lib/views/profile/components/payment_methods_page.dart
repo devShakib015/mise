@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:ionicons/ionicons.dart';
 
 class PaymentMethodsPage extends StatelessWidget {
@@ -15,7 +13,7 @@ class PaymentMethodsPage extends StatelessWidget {
           IconButton(onPressed: () {}, icon: const Icon(Ionicons.scan_outline)),
         ],
       ),
-      body: ListView(children: []),
+      body: ListView(children: const []),
     );
   }
 }

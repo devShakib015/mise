@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:ionicons/ionicons.dart';
 
 class MyFavoriteFoodsPage extends StatelessWidget {
@@ -17,7 +15,7 @@ class MyFavoriteFoodsPage extends StatelessWidget {
         ],
       ),
       body: ListView(
-        children: [],
+        children: const [],
       ),
     );
   }
