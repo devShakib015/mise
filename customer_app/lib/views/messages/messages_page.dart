@@ -1,0 +1,52 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:customer_app/helpers/images.dart';
+import 'package:customer_app/helpers/theme_constants.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/container.dart';
+import 'package:flutter/src/widgets/framework.dart';
+import 'package:ionicons/ionicons.dart';
+
+class MessagesPage extends StatelessWidget {
+  const MessagesPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Messages"),
+        leading: Padding(
+          padding: const EdgeInsets.symmetric(
+              vertical: ThemeConstant.defaultPadding),
+          child: Image.asset(Images.logo,
+              color: Theme.of(context).colorScheme.primary),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Ionicons.search_outline),
+          ),
+        ],
+      ),
+      // body: SingleChildScrollView(
+      //   padding: const EdgeInsets.all(ThemeConstant.defaultPadding),
+      //   child: Column(
+      //     children: [
+      //       for (var i = 0; i < 20; i++)
+      //         Card(
+      //           child: const ListTile(
+      //             leading: CircleAvatar(
+      //               backgroundImage: CachedNetworkImageProvider(
+      //                   "https://media.istockphoto.com/id/1196667159/photo/girl-at-the-restaurant-drinks-juice.jpg?s=170667a&w=0&k=20&c=tov2XjsqgpCDGU1I5O4-AcV-kw-_a8J5NuqrmpFiggM="),
+      //             ),
+      //             title: Text(
+      //               "Lisa Kudrow",
+      //               style: TextStyle(fontWeight: FontWeight.bold),
+      //             ),
+      //           ),
+      //         ),
+      //     ],
+      //   ),
+      // ),
+    );
+  }
+}
