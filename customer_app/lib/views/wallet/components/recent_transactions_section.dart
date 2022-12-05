@@ -1,11 +1,11 @@
 import 'package:customer_app/l18n/locale_keys.g.dart';
-import 'package:customer_app/views/wallet/components/transaction%20_history_page.dart';
+import 'package:customer_app/views/wallet/components/transactions_page.dart';
 import 'package:customer_app/views/wallet/components/transaction_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-class RecentTransactionHistorySection extends StatelessWidget {
-  const RecentTransactionHistorySection({super.key});
+class RecentTransactionsSection extends StatelessWidget {
+  const RecentTransactionsSection({super.key});
 
   @override
   Widget build(BuildContext context) {

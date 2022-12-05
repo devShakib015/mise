@@ -1,5 +1,5 @@
 import 'package:customer_app/helpers/theme_constants.dart';
-import 'package:customer_app/views/wallet/components/recent_transaction_history_section.dart';
+import 'package:customer_app/views/wallet/components/recent_transactions_section.dart';
 import 'package:customer_app/views/wallet/components/wallet_balance_section.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
@@ -30,7 +30,7 @@ class WalletPage extends StatelessWidget {
         padding: EdgeInsets.symmetric(
             horizontal: ThemeConstant.defaultPadding,
             vertical: ThemeConstant.defaultPadding / 2),
-        child: RecentTransactionHistorySection(),
+        child: RecentTransactionsSection(),
       ),
     );
   }

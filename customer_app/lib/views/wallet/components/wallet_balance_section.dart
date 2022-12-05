@@ -1,4 +1,5 @@
 import 'package:customer_app/helpers/theme_constants.dart';
+import 'package:customer_app/views/wallet/components/wallet_top_up_page.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 
@@ -62,7 +63,14 @@ class WalletBalanceSection extends StatelessWidget {
                         BorderRadius.circular(ThemeConstant.defaultRadius / 2),
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) {
+                      return const WalletTopUpPage();
+                    }),
+                  );
+                },
                 icon: Icon(
                   Ionicons.add_circle_outline,
                   size: 18,
