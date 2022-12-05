@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class ThemeConstant {
   ThemeConstant._();
 
   static const Color primaryColor = Color(0xff1bab4b);
-  static const Color secondaryColor = Color(0xffa5deb7);
+
   static const Color darkBackgroundColor = Color(0xff181a20);
+  static const Color darkCardColor = Color(0xff20232b);
 
   static const double defaultPadding = 16;
   static const double defaultRadius = 16;
@@ -54,16 +54,47 @@ ThemeData _buildTheme(Brightness brightness, Color primaryColor) {
           ? SystemUiOverlayStyle.light
           : SystemUiOverlayStyle.dark,
     ),
+    checkboxTheme: CheckboxThemeData(
+      fillColor: MaterialStateProperty.all(primaryColor),
+    ),
+    radioTheme: RadioThemeData(
+      fillColor: MaterialStateProperty.all(primaryColor),
+    ),
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: brightness == Brightness.dark
+          ? ThemeConstant.darkBackgroundColor
+          : null,
+      selectedItemColor: primaryColor,
+      unselectedItemColor: brightness == Brightness.dark
+          ? Colors.white.withOpacity(0.5)
+          : Colors.black.withOpacity(0.5),
+      selectedIconTheme: IconThemeData(
+        color: primaryColor,
+      ),
+      unselectedIconTheme: IconThemeData(
+        color: brightness == Brightness.dark
+            ? Colors.white.withOpacity(0.5)
+            : Colors.black.withOpacity(0.5),
+      ),
+      selectedLabelStyle: TextStyle(
+        color: primaryColor,
+      ),
+      unselectedLabelStyle: TextStyle(
+        color: brightness == Brightness.dark
+            ? Colors.white.withOpacity(0.5)
+            : Colors.black.withOpacity(0.5),
+      ),
+    ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         elevation: 2,
-        shadowColor: ThemeConstant.secondaryColor.withOpacity(0.2),
+        shadowColor: ThemeConstant.primaryColor.withOpacity(0.2),
         padding: const EdgeInsets.all(ThemeConstant.defaultPadding),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(ThemeConstant.defaultRadius),
         ),
         foregroundColor: Colors.white,
-        textStyle: TextStyle(fontWeight: FontWeight.bold),
+        textStyle: const TextStyle(fontWeight: FontWeight.bold),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
@@ -90,6 +121,7 @@ ThemeData _buildTheme(Brightness brightness, Color primaryColor) {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(ThemeConstant.defaultRadius),
       ),
+      color: brightness == Brightness.dark ? ThemeConstant.darkCardColor : null,
     ),
     inputDecorationTheme: const InputDecorationTheme(
       border: InputBorder.none,
@@ -97,6 +129,39 @@ ThemeData _buildTheme(Brightness brightness, Color primaryColor) {
         horizontal: ThemeConstant.defaultPadding,
         vertical: ThemeConstant.defaultPadding / 2,
       ),
+    ),
+    tabBarTheme: TabBarTheme(
+      unselectedLabelColor: brightness == Brightness.dark
+          ? Colors.white.withOpacity(0.5)
+          : Colors.black.withOpacity(0.5),
+      labelColor: brightness == Brightness.dark
+          ? Colors.white.withOpacity(0.9)
+          : Colors.black.withOpacity(0.9),
+      indicator: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: primaryColor, width: 2),
+        ),
+      ),
+      labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+    ),
+    expansionTileTheme: const ExpansionTileThemeData(
+      tilePadding: EdgeInsets.symmetric(
+        horizontal: ThemeConstant.defaultPadding,
+        vertical: ThemeConstant.defaultPadding / 4,
+      ),
+      childrenPadding: EdgeInsets.symmetric(
+        horizontal: ThemeConstant.defaultPadding,
+        vertical: ThemeConstant.defaultPadding / 2,
+      ),
+      expandedAlignment: Alignment.centerLeft,
+    ),
+    dialogTheme: DialogTheme(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ThemeConstant.defaultRadius),
+      ),
+      backgroundColor:
+          brightness == Brightness.dark ? ThemeConstant.darkCardColor : null,
     ),
   );
 }

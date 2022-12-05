@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:customer_app/helpers/app_constants.dart';
 import 'package:customer_app/helpers/images.dart';
 import 'package:customer_app/helpers/theme_constants.dart';

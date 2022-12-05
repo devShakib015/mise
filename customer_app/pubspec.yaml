@@ -42,8 +42,11 @@ dependencies:
   easy_localization: ^3.0.1
   intl_phone_number_input: ^0.7.1
   card_swiper: ^2.0.4
-  google_fonts: ^3.0.1
   awesome_rating: ^0.0.4
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  flutter_riverpod: ^2.1.1
+  flutter_easyloading: ^3.0.5
 
 dev_dependencies:
   flutter_test:

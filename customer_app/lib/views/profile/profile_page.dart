@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:customer_app/helpers/images.dart';
 import 'package:customer_app/helpers/theme_constants.dart';
+import 'package:customer_app/providers/hive_provider.dart';
 import 'package:customer_app/views/profile/components/addresses_page.dart';
 import 'package:customer_app/views/profile/components/edit_profile_page.dart';
+import 'package:customer_app/views/profile/components/help_center_page.dart';
 import 'package:customer_app/views/profile/components/invite_friends.dart';
 import 'package:customer_app/views/profile/components/language_page.dart';
 import 'package:customer_app/views/profile/components/my_favorite_foods_page.dart';
@@ -10,7 +12,9 @@ import 'package:customer_app/views/profile/components/notification_settings_page
 import 'package:customer_app/views/profile/components/payment_methods_page.dart';
 import 'package:customer_app/views/profile/components/security_page.dart';
 import 'package:customer_app/widgets/custom_spacer.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ionicons/ionicons.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -120,16 +124,30 @@ class ProfilePage extends StatelessWidget {
               },
             ),
             //Dark Mode
-            ProfileListTile(
-              icon: Ionicons.moon_outline,
-              title: 'Dark Mode',
-              onTap: () {},
+            Consumer(
+              builder: (context, ref, child) {
+                final themeRef = ref.watch(themeProvider);
+                return ProfileListTile(
+                  icon: Ionicons.moon_outline,
+                  title: 'Dark Mode',
+                  onTap: () {},
+                  trailing: CupertinoSwitch(
+                    value: themeRef.isDarkTheme ?? false,
+                    onChanged: (value) async {
+                      await ref.read(themeProvider).saveTheme(value);
+                    },
+                  ),
+                );
+              },
             ),
             //Help Center
             ProfileListTile(
               icon: Ionicons.help_outline,
               title: 'Help Center',
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const HelpCenterPage()));
+              },
             ),
             //Invite Friends
             ProfileListTile(
@@ -147,7 +165,7 @@ class ProfilePage extends StatelessWidget {
             ProfileListTile(
               icon: Ionicons.log_out_outline,
               title: 'Logout',
-              onTap: () {},
+              onTap: () async {},
               color: Theme.of(context).colorScheme.error,
             ),
             const DefaultVerticalSpacer(),

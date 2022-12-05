@@ -1,6 +1,7 @@
 import 'package:customer_app/l18n/locale_keys.g.dart';
 import 'package:customer_app/views/home/home_page.dart';
 import 'package:customer_app/views/profile/profile_page.dart';
+import 'package:customer_app/views/wallet/wallet_page.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -17,7 +18,6 @@ class _WrapperState extends State<Wrapper> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(toolbarHeight: 0),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
@@ -74,7 +74,7 @@ List<WrapperBodyItem> _wrapperBodyItems = [
       activeIcon: const Icon(Ionicons.wallet),
       label: LocaleKeys.WALLET.tr(),
     ),
-    body: const Center(child: Text('Wallet')),
+    body: const WalletPage(),
   ),
   WrapperBodyItem(
     bottomNavigationBarItem: BottomNavigationBarItem(

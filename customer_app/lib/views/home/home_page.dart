@@ -14,7 +14,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: HomePageTopBar(),
+        title: const HomePageTopBar(),
       ),
       body: ListView(
         padding: const EdgeInsets.all(ThemeConstant.defaultPadding),

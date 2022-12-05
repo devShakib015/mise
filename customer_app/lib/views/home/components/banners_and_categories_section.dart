@@ -2,7 +2,7 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:customer_app/helpers/images.dart';
 import 'package:customer_app/helpers/theme_constants.dart';
 import 'package:customer_app/l18n/locale_keys.g.dart';
-import 'package:customer_app/views/home/category_page.dart';
+import 'package:customer_app/views/categories/categories_page.dart';
 import 'package:customer_app/views/home/components/home_categories_section.dart';
 import 'package:customer_app/widgets/custom_spacer.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +34,7 @@ class BannersAndCategoriesSection extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const CategoryPage(),
+                    builder: (context) => const CategoriesPage(),
                   ),
                 );
               },

@@ -2,8 +2,8 @@ import 'package:customer_app/helpers/theme_constants.dart';
 import 'package:customer_app/widgets/category_item.dart';
 import 'package:flutter/material.dart';
 
-class CategoryPage extends StatelessWidget {
-  const CategoryPage({super.key});
+class CategoriesPage extends StatelessWidget {
+  const CategoriesPage({super.key});
 
   @override
   Widget build(BuildContext context) {

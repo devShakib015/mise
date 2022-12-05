@@ -1,5 +1,5 @@
 import 'package:customer_app/helpers/theme_constants.dart';
-import 'package:customer_app/views/home/category_page.dart';
+import 'package:customer_app/views/categories/categories_page.dart';
 import 'package:customer_app/widgets/category_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

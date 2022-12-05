@@ -15,7 +15,6 @@ class FieldCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Theme.of(context).dividerColor.withOpacity(0.05),
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: ThemeConstant.defaultPadding,

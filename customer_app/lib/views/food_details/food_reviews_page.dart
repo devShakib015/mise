@@ -3,10 +3,7 @@ import 'dart:math';
 import 'package:awesome_rating/awesome_rating.dart';
 import 'package:customer_app/helpers/theme_constants.dart';
 import 'package:customer_app/widgets/custom_spacer.dart';
-import 'package:customer_app/widgets/custom_widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 class RatingAndReviewsPage extends StatefulWidget {
   const RatingAndReviewsPage({super.key});
@@ -20,7 +17,7 @@ class _RatingAndReviewsPageState extends State<RatingAndReviewsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Rating & Reviews'),
+        title: const Text('Rating & Reviews'),
       ),
       body: SingleChildScrollView(
         child: Column(

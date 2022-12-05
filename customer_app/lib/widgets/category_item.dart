@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:customer_app/helpers/theme_constants.dart';
-import 'package:customer_app/views/home/category_page.dart';
+import 'package:customer_app/views/categories/categories_page.dart';
+import 'package:customer_app/views/categories/category_items_page.dart';
 import 'package:flutter/material.dart';
 
 class CategoryItemWidget extends StatelessWidget {
@@ -14,7 +15,12 @@ class CategoryItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-//TODO: Navigate to Category details page
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CategoryItemsPage(title: category.title),
+          ),
+        );
       },
       child: SizedBox(
         width: MediaQuery.of(context).size.width / 5,

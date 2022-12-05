@@ -1,3 +1,5 @@
+import 'package:customer_app/helpers/theme_constants.dart';
+import 'package:customer_app/widgets/food_item_tiles.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 
@@ -15,7 +17,10 @@ class MyFavoriteFoodsPage extends StatelessWidget {
         ],
       ),
       body: ListView(
-        children: const [],
+        padding: const EdgeInsets.all(ThemeConstant.defaultPadding),
+        children: [
+          for (var i = 0; i < 10; i++) const FoodItemListTile(),
+        ],
       ),
     );
   }

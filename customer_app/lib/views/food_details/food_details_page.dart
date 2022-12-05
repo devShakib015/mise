@@ -118,7 +118,6 @@ class _FoodDetailsPageState extends State<FoodDetailsPage> {
                 );
               },
               title: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   const Icon(Ionicons.star, color: Colors.orange, size: 15),
                   const SizedBox(width: ThemeConstant.defaultPadding / 4),
