@@ -47,6 +47,7 @@ dependencies:
   hive_flutter: ^1.1.0
   flutter_riverpod: ^2.1.1
   flutter_easyloading: ^3.0.5
+  pinput: ^2.2.16
 
 dev_dependencies:
   flutter_test:

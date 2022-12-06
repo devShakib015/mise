@@ -3,6 +3,7 @@ import 'package:customer_app/helpers/config_loading.dart';
 import 'package:customer_app/helpers/hive_constants.dart';
 import 'package:customer_app/helpers/theme_constants.dart';
 import 'package:customer_app/providers/hive_provider.dart';
+import 'package:customer_app/views/auth/login_page.dart';
 import 'package:customer_app/views/wrapper.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -60,7 +61,7 @@ class MyApp extends ConsumerWidget {
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
-      home: const Wrapper(),
+      home: const LoginPage(),
       builder: EasyLoading.init(),
     );
   }
