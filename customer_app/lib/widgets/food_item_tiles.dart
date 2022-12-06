@@ -295,3 +295,70 @@ class CartItemListTile extends StatelessWidget {
     );
   }
 }
+
+class OrderItemListTile extends StatelessWidget {
+  const OrderItemListTile({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 80,
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(ThemeConstant.defaultPadding / 2),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius:
+                    BorderRadius.circular(ThemeConstant.defaultRadius),
+                child: Image.asset(
+                  Images.foodItems[Random().nextInt(Images.foodItems.length)],
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const DefaultHorizontalSpacer(),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const DefaultVerticalSpacer(isHalf: true),
+                    Text(
+                      foodItemNames[Random().nextInt(foodItemNames.length)],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyText1!
+                          .copyWith(fontWeight: FontWeight.w600, fontSize: 16),
+                    ),
+                    const Spacer(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                            "${Random().nextInt(5) + 1} items x \$${(Random().nextDouble() * 20 + 5).toStringAsFixed(2)}",
+                            style: Theme.of(context).textTheme.caption!),
+                        Text(
+                          "\$${(Random().nextDouble() * 100 + 5).toStringAsFixed(2)}",
+                          style: Theme.of(context)
+                              .textTheme
+                              .subtitle2!
+                              .copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                        )
+                      ],
+                    ),
+                    const DefaultVerticalSpacer(isHalf: true),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

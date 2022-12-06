@@ -34,10 +34,7 @@ class MessagesPage extends StatelessWidget {
       //       for (var i = 0; i < 20; i++)
       //         Card(
       //           child: const ListTile(
-      //             leading: CircleAvatar(
-      //               backgroundImage: CachedNetworkImageProvider(
-      //                   "https://media.istockphoto.com/id/1196667159/photo/girl-at-the-restaurant-drinks-juice.jpg?s=170667a&w=0&k=20&c=tov2XjsqgpCDGU1I5O4-AcV-kw-_a8J5NuqrmpFiggM="),
-      //             ),
+
       //             title: Text(
       //               "Lisa Kudrow",
       //               style: TextStyle(fontWeight: FontWeight.bold),

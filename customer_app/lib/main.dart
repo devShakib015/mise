@@ -61,7 +61,7 @@ class MyApp extends ConsumerWidget {
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
-      home: const LoginPage(),
+      home: const Wrapper(),
       builder: EasyLoading.init(),
     );
   }

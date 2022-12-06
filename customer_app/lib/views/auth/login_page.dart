@@ -108,8 +108,10 @@ class LoginPage extends StatelessWidget {
 }
 
 class AgreeTermsAndPrivacySection extends StatelessWidget {
+  final String? text;
   const AgreeTermsAndPrivacySection({
     Key? key,
+    this.text,
   }) : super(key: key);
 
   @override
@@ -118,7 +120,7 @@ class AgreeTermsAndPrivacySection extends StatelessWidget {
       padding: const EdgeInsets.all(ThemeConstant.defaultPadding),
       child: Text.rich(
         TextSpan(
-          text: "By signing in, you agree to our ",
+          text: text ?? "By signing in, you agree to our ",
           style: Theme.of(context).textTheme.caption,
           children: [
             TextSpan(

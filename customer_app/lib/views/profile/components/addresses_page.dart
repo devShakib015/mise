@@ -29,8 +29,10 @@ class AddressesPage extends StatelessWidget {
 }
 
 class AddressListTile extends StatelessWidget {
+  final Widget? trailing;
   const AddressListTile({
     Key? key,
+    this.trailing,
   }) : super(key: key);
 
   @override
@@ -78,11 +80,12 @@ class AddressListTile extends StatelessWidget {
           ],
         ),
         subtitle: const Text('123 Main St, New York, NY 10001'),
-        trailing: IconButton(
-          onPressed: () {},
-          icon: Icon(Ionicons.create_outline,
-              color: Theme.of(context).colorScheme.primary),
-        ),
+        trailing: trailing ??
+            IconButton(
+              onPressed: () {},
+              icon: Icon(Ionicons.create_outline,
+                  color: Theme.of(context).colorScheme.primary),
+            ),
       ),
     );
   }
