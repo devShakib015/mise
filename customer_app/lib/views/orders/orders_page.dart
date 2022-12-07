@@ -1,8 +1,6 @@
 import 'package:customer_app/helpers/images.dart';
 import 'package:customer_app/helpers/theme_constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:ionicons/ionicons.dart';
 
 class OrdersPage extends StatelessWidget {

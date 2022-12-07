@@ -4,7 +4,6 @@ import 'package:customer_app/helpers/date_formatter.dart';
 import 'package:customer_app/helpers/theme_constants.dart';
 import 'package:customer_app/widgets/custom_spacer.dart';
 import 'package:customer_app/widgets/field_card.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:ionicons/ionicons.dart';

@@ -1,5 +1,4 @@
 import 'package:customer_app/helpers/theme_constants.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
