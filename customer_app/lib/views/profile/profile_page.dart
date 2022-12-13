@@ -11,6 +11,7 @@ import 'package:customer_app/views/profile/components/my_favorite_foods_page.dar
 import 'package:customer_app/views/profile/components/notification_settings_page.dart';
 import 'package:customer_app/views/profile/components/payment_methods_page.dart';
 import 'package:customer_app/views/profile/components/security_page.dart';
+import 'package:customer_app/widgets/custom_dialogs.dart';
 import 'package:customer_app/widgets/custom_spacer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -165,7 +166,29 @@ class ProfilePage extends StatelessWidget {
             ProfileListTile(
               icon: Ionicons.log_out_outline,
               title: 'Logout',
-              onTap: () async {},
+              onTap: () async {
+                showCustomDialog(
+                  context,
+                  child: AlertDialog(
+                    title: const Text('Logout'),
+                    content: const Text('Are you sure you want to logout?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Logout'),
+                      ),
+                    ],
+                  ),
+                );
+              },
               color: Theme.of(context).colorScheme.error,
             ),
             const DefaultVerticalSpacer(),

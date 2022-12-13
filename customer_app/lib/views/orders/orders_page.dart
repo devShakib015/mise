@@ -1,5 +1,6 @@
 import 'package:customer_app/helpers/images.dart';
 import 'package:customer_app/helpers/theme_constants.dart';
+import 'package:customer_app/widgets/food_item_tiles.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 
@@ -35,11 +36,59 @@ class OrdersPage extends StatelessWidget {
         ),
         body: const TabBarView(
           children: [
-            Center(child: Text("Active")),
-            Center(child: Text("Completed")),
-            Center(child: Text("Cancelled")),
+            ActiveOrdersSection(),
+            CompletedOrdersSection(),
+            CancelledOrdersSection(),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class ActiveOrdersSection extends StatelessWidget {
+  const ActiveOrdersSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(ThemeConstant.defaultPadding),
+      child: Column(
+        children: [
+          for (var i = 0; i < 10; i++) const OrderItemListTile(orderStatus: 0),
+        ],
+      ),
+    );
+  }
+}
+
+class CompletedOrdersSection extends StatelessWidget {
+  const CompletedOrdersSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(ThemeConstant.defaultPadding),
+      child: Column(
+        children: [
+          for (var i = 0; i < 10; i++) const OrderItemListTile(orderStatus: 1),
+        ],
+      ),
+    );
+  }
+}
+
+class CancelledOrdersSection extends StatelessWidget {
+  const CancelledOrdersSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(ThemeConstant.defaultPadding),
+      child: Column(
+        children: [
+          for (var i = 0; i < 10; i++) const OrderItemListTile(orderStatus: 2),
+        ],
       ),
     );
   }

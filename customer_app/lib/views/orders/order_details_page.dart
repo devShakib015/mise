@@ -1,65 +1,112 @@
 import 'dart:math';
 
 import 'package:customer_app/helpers/theme_constants.dart';
-import 'package:customer_app/views/auth/login_page.dart';
 import 'package:customer_app/views/profile/components/addresses_page.dart';
 import 'package:customer_app/widgets/custom_spacer.dart';
 import 'package:customer_app/widgets/food_item_tiles.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 
-class CheckoutPage extends StatefulWidget {
-  const CheckoutPage({super.key});
-
-  @override
-  State<CheckoutPage> createState() => _CheckoutPageState();
-}
-
-class _CheckoutPageState extends State<CheckoutPage> {
-  final _tipController = TextEditingController();
-  final _adicionalNotesController = TextEditingController();
-  final _promoCodeController = TextEditingController();
+class OrderDetailsPage extends StatelessWidget {
+  const OrderDetailsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    int orderStatus = Random().nextInt(3);
+
+    final Color orderStatusColor = orderStatus == 0
+        ? Theme.of(context).colorScheme.secondary
+        : orderStatus == 1
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.error;
+
+    final isPaid = Random().nextBool();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Checkout Orders'),
+        title: Text("Order #${Random().nextInt(1000)}"),
+        actions: [
+          Tooltip(
+            message: "Download Invoice",
+            child: IconButton(
+              onPressed: () {},
+              icon: const Icon(Ionicons.download_outline),
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(ThemeConstant.defaultPadding),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            //Order Status
+            Container(
+              padding: const EdgeInsets.all(ThemeConstant.defaultPadding),
+              decoration: BoxDecoration(
+                color: orderStatusColor.withOpacity(0.1),
+                borderRadius:
+                    BorderRadius.circular(ThemeConstant.defaultRadius),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    orderStatus == 0
+                        ? Ionicons.time_outline
+                        : orderStatus == 1
+                            ? Ionicons.checkmark_circle_outline
+                            : Ionicons.close_circle_outline,
+                    color: orderStatusColor,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    orderStatus == 0
+                        ? "Order Placed"
+                        : orderStatus == 1
+                            ? "Order Delivered"
+                            : "Order Cancelled",
+                    style: Theme.of(context).textTheme.bodyText1!.copyWith(
+                        color: orderStatusColor, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+            const DefaultVerticalSpacer(isHalf: true),
+
             Card(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding:
-                            const EdgeInsets.all(ThemeConstant.defaultPadding),
-                        child: Text(
-                          "Delivery To",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyText1!
-                              .copyWith(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                      ),
-                      TextButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Ionicons.storefront_outline, size: 16),
-                        label: const Text(
-                          "On Premises",
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.all(ThemeConstant.defaultPadding),
+                    child: Text(
+                      "Order Items",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyText1!
+                          .copyWith(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                  ),
+                  const Divider(height: 0),
+                  for (var i = 0; i < 4; i++) const CheckoutItemListTile(),
+                ],
+              ),
+            ),
+            //Delivery Details
+            Card(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(ThemeConstant.defaultPadding),
+                    child: Text(
+                      "Delivery to",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyText1!
+                          .copyWith(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
                   ),
                   const Divider(height: 0),
                   const AddressListTile(
@@ -68,100 +115,41 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ],
               ),
             ),
-            const DefaultVerticalSpacer(isHalf: true),
+            //Payment Details
             Card(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding:
-                            const EdgeInsets.all(ThemeConstant.defaultPadding),
-                        child: Text(
-                          "Order Summary",
+                  Padding(
+                    padding: const EdgeInsets.all(ThemeConstant.defaultPadding),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "Payment Details",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyText1!
+                                .copyWith(
+                                    fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                        ),
+                        Text(
+                          isPaid ? "Paid" : "Unpaid",
                           style: Theme.of(context)
                               .textTheme
                               .bodyText1!
                               .copyWith(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
+                                  color: isPaid
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Theme.of(context).colorScheme.error,
+                                  fontWeight: FontWeight.bold),
                         ),
-                      ),
-                      TextButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Ionicons.add, size: 16),
-                        label: const Text(
-                          "Add More Items",
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   const Divider(height: 0),
-                  for (var i = 0; i < 4; i++) const CheckoutItemListTile(),
-                ],
-              ),
-            ),
-            const DefaultVerticalSpacer(isHalf: true),
-            Card(
-              child: Column(
-                children: [
-                  ListTile(
-                    title: Text(
-                      "Add Tip (Optional)",
-                      style: Theme.of(context)
-                          .textTheme
-                          .subtitle2!
-                          .copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    horizontalTitleGap: 0,
-                    leading: Icon(
-                      Ionicons.cash_outline,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    trailing: const Icon(Ionicons.chevron_forward),
-                  ),
-                  const Divider(height: 0),
-                  ListTile(
-                    title: Text(
-                      "Promo Code (Optional)",
-                      style: Theme.of(context)
-                          .textTheme
-                          .subtitle2!
-                          .copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    horizontalTitleGap: 0,
-                    leading: Icon(
-                      Ionicons.pricetag_outline,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    trailing: const Icon(Ionicons.chevron_forward),
-                  ),
-                  const Divider(height: 0),
-                  ListTile(
-                    title: Text(
-                      "Additional Notes (Optional)",
-                      style: Theme.of(context)
-                          .textTheme
-                          .subtitle2!
-                          .copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    horizontalTitleGap: 0,
-                    leading: Icon(
-                      Ionicons.clipboard_outline,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    trailing: const Icon(Ionicons.chevron_forward),
-                  ),
-                ],
-              ),
-            ),
-            const DefaultVerticalSpacer(isHalf: true),
-            Card(
-              child: Column(
-                children: [
                   ListTile(
                     title: Text(
                       "Subtotal",
@@ -293,33 +281,36 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ],
               ),
             ),
-            const DefaultVerticalSpacer(isHalf: true),
-            Card(
-              child: Column(
+            //Order Buttons
+            Padding(
+              padding: const EdgeInsets.all(ThemeConstant.defaultPadding / 2),
+              child: Row(
                 children: [
-                  ListTile(
-                    title: Text(
-                      "Payment Method",
-                      style: Theme.of(context)
-                          .textTheme
-                          .subtitle2!
-                          .copyWith(fontWeight: FontWeight.bold),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      child: orderStatus == 0
+                          ? const Text("Cancel Order")
+                          : orderStatus == 1
+                              ? const Text("Leave a Review")
+                              : const Text("Order Again"),
                     ),
-                    horizontalTitleGap: 0,
-                    leading: Icon(
-                      Ionicons.card_outline,
-                      color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: ThemeConstant.defaultPadding / 2),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      child: orderStatus == 0
+                          ? const Text("Track Order")
+                          : orderStatus == 1
+                              ? const Text("Order Again")
+                              : const Text("Order Support"),
                     ),
-                    trailing: const Icon(Ionicons.chevron_forward),
                   ),
                 ],
               ),
             ),
-            const AgreeTermsAndPrivacySection(
-                text: "By placing this order, you agree to our "),
-            ElevatedButton(onPressed: () {}, child: const Text("Place Order")),
-            const DefaultVerticalSpacer(),
-            const DefaultVerticalSpacer(),
+            const SizedBox(height: ThemeConstant.defaultPadding),
           ],
         ),
       ),
