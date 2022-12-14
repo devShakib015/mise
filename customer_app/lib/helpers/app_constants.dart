@@ -6,7 +6,7 @@ class AppConstants {
   static const String appName = 'Foodie';
 
   /// App country codes
-  static const List<String> appCountryCodes = ['BD'];
+  static const List<String> appCountryCodes = ['US'];
 
   /// App languages
 
