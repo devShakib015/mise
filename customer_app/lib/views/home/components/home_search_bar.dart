@@ -1,4 +1,5 @@
 import 'package:customer_app/helpers/theme_constants.dart';
+import 'package:customer_app/views/search/search_page.dart';
 import 'package:customer_app/widgets/field_card.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
@@ -12,8 +13,11 @@ class HomeSearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        print('Search');
-        //TODO: Navigate to the search page
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const SearchPage(),
+          ),
+        );
       },
       child: FieldCard(
         prefixIcon: Ionicons.search_outline,

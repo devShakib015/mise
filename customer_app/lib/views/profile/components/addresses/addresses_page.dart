@@ -1,4 +1,5 @@
 import 'package:customer_app/helpers/theme_constants.dart';
+import 'package:customer_app/views/profile/components/addresses/create_address_page.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 
@@ -12,7 +13,11 @@ class AddressesPage extends StatelessWidget {
         title: const Text('Addresses'),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return const CreateAddressPage();
+              }));
+            },
             icon: const Icon(Ionicons.add),
           ),
         ],

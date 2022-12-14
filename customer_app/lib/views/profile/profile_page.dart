@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:customer_app/helpers/images.dart';
 import 'package:customer_app/helpers/theme_constants.dart';
 import 'package:customer_app/providers/hive_provider.dart';
-import 'package:customer_app/views/profile/components/addresses_page.dart';
+import 'package:customer_app/views/profile/components/addresses/addresses_page.dart';
 import 'package:customer_app/views/profile/components/edit_profile_page.dart';
 import 'package:customer_app/views/profile/components/help_center_page.dart';
 import 'package:customer_app/views/profile/components/invite_friends.dart';
@@ -11,6 +11,7 @@ import 'package:customer_app/views/profile/components/my_favorite_foods_page.dar
 import 'package:customer_app/views/profile/components/notification_settings_page.dart';
 import 'package:customer_app/views/profile/components/payment_methods_page.dart';
 import 'package:customer_app/views/profile/components/security_page.dart';
+import 'package:customer_app/views/profile/components/special_offers_page.dart';
 import 'package:customer_app/widgets/custom_dialogs.dart';
 import 'package:customer_app/widgets/custom_spacer.dart';
 import 'package:flutter/cupertino.dart';
@@ -65,7 +66,10 @@ class ProfilePage extends StatelessWidget {
             ProfileListTile(
               icon: Ionicons.gift_outline,
               title: 'Special Offers',
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const SpecialOffersPage()));
+              },
             ),
             //Payment Methods
             ProfileListTile(
@@ -82,7 +86,7 @@ class ProfilePage extends StatelessWidget {
             //Profile
             ProfileListTile(
               icon: Ionicons.person_outline,
-              title: 'Profile',
+              title: 'Edit Profile',
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => const EditProfilePage()));

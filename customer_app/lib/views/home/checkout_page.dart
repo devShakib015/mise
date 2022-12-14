@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:customer_app/helpers/theme_constants.dart';
 import 'package:customer_app/views/auth/login_page.dart';
-import 'package:customer_app/views/profile/components/addresses_page.dart';
+import 'package:customer_app/views/profile/components/addresses/addresses_page.dart';
 import 'package:customer_app/widgets/custom_spacer.dart';
 import 'package:customer_app/widgets/food_item_tiles.dart';
 import 'package:flutter/material.dart';

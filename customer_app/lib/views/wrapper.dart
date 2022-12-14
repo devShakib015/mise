@@ -1,6 +1,5 @@
 import 'package:customer_app/l18n/locale_keys.g.dart';
 import 'package:customer_app/views/home/home_page.dart';
-import 'package:customer_app/views/messages/messages_page.dart';
 import 'package:customer_app/views/orders/orders_page.dart';
 import 'package:customer_app/views/profile/profile_page.dart';
 import 'package:customer_app/views/wallet/wallet_page.dart';
@@ -61,14 +60,6 @@ List<WrapperBodyItem> _wrapperBodyItems = [
       label: LocaleKeys.ORDERS.tr(),
     ),
     body: const OrdersPage(),
-  ),
-  WrapperBodyItem(
-    bottomNavigationBarItem: BottomNavigationBarItem(
-      icon: const Icon(Ionicons.chatbubble_ellipses_outline),
-      activeIcon: const Icon(Ionicons.chatbubble_ellipses),
-      label: LocaleKeys.MESSAGES.tr(),
-    ),
-    body: const MessagesPage(),
   ),
   WrapperBodyItem(
     bottomNavigationBarItem: BottomNavigationBarItem(
