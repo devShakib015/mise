@@ -164,9 +164,12 @@ money hooks, Flutter app skeleton, design system, staff auth, first-run setup
 wizard. Verified end to end: connect → set up → sign in → role shell, with the
 session surviving a restart. 27 automated checks passing across two suites.
 
-**Phase 1 — Menu and settings**
-Categories, items, modifier groups, image upload, restaurant details, tax and
-currency configuration.
+**Phase 1 — Menu and settings** ✅ *done*
+Manager shell with grouped navigation. Categories with drag-reordering and till
+colours; items with photos, tags, prep times and a sold-out ("86") toggle;
+modifier groups and their options; venue settings for name, currency, tax,
+service charge and receipt lines. All lists are realtime — a change on one
+device lands on the others without a refresh.
 *Test: build your real menu from scratch.*
 
 **Phase 2 — POS core**

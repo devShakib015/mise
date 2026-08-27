@@ -221,6 +221,29 @@ class SessionController extends Notifier<SessionState> {
     state = SessionReady(staff: staff, restaurant: restaurant);
   }
 
+  /// Writes venue settings and refreshes the session copy so every screen sees
+  /// the new currency, tax rate and name immediately.
+  Future<String?> updateRestaurant(Map<String, dynamic> body) async {
+    final pb = _pb;
+    final current = state;
+    if (pb == null || current is! SessionReady) {
+      return 'Not signed in.';
+    }
+
+    try {
+      final record = await pb
+          .collection('restaurant')
+          .update(current.restaurant.id, body: body);
+      state = SessionReady(
+        staff: current.staff,
+        restaurant: Restaurant.fromRecord(record),
+      );
+      return null;
+    } catch (err) {
+      return describeError(err, fallback: 'Could not save those settings.');
+    }
+  }
+
   Future<void> signOut() async {
     final pb = _pb;
     pb?.authStore.clear();

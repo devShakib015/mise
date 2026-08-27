@@ -39,6 +39,8 @@ dependencies:
   pocketbase: ^0.25.0
   shared_preferences: ^2.5.5
   intl: ^0.20.3
+  file_picker: ^12.1.1
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:

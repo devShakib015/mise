@@ -8,6 +8,7 @@ import '../../core/widgets/brand_mark.dart';
 import '../../data/models/restaurant.dart';
 import '../../data/models/staff.dart';
 import '../../data/session.dart';
+import '../manager/manager_shell.dart';
 
 /// One app, three faces. The signed-in role decides which one opens.
 class AppShellScreen extends ConsumerWidget {
@@ -53,17 +54,7 @@ class AppShellScreen extends ConsumerWidget {
                     'Prep timers and ticket ageing',
                   ],
                 ),
-              AppShell.manager => const _Placeholder(
-                  shell: 'Manager',
-                  icon: Icons.tune_rounded,
-                  blurb: 'Menu, staff, settings and the numbers.',
-                  phase: 'Phase 1',
-                  coming: [
-                    'Categories, items and modifier groups',
-                    'Tables, staff accounts and printers',
-                    'Sales reporting and end-of-day',
-                  ],
-                ),
+              AppShell.manager => const ManagerShell(),
             },
           ),
         ],
