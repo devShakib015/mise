@@ -1,64 +1,65 @@
-# restaurant_cms
+# Restaurant CMS
 
-A complete restaurant management system with a flutter frontend and firebase backend.
-There is an admin panel for managing the restaurant, customer app for ordering food and a delivery app for delivering food.
-There are 3 apps in total, admin panel, customer app and delivery app.
-These apps are made using flutter and firebase.
+A free, self-hosted restaurant management system. One installer gives a restaurant
+a working POS, kitchen display, menu manager and sales reports on their own
+hardware.
 
-This project has a lot of features, some of them are:
+**Free forever.** No licence key, no account, no subscription, no telemetry, no
+paid tier. The restaurant's data lives on the restaurant's machine.
 
-- Admin panel
-  - Manage menu
-  - Manage orders
-  - Manage delivery
-  - Manage customers
-  - Manage branches
-  - Manage employees
-  - Admin login
-  - Admin dashboard
-  - Admin profile
-  - Create Moderator/Manager with different permissions
-  - Moderator login
-  - Moderator dashboard
-  - Moderator profile
-  - Modern UI
-  - Responsive UI (Desktop Only)
+Because the server runs on-site, **the POS keeps taking orders when the internet
+goes down** — which for a restaurant matters more than almost anything else.
 
-- Customer app
-  - Food Categories
-  - Food Items
-  - Food Item Details
-  - Add to cart
-  - Remove from cart
-  - Cart
-  - Checkout
-  - Multiple payment methods
-  - Wallet
-  - Order food
-  - Order history
-  - Live order tracking
-  - Order details
-  - Event booking for specific date and time and branch
-  - Customer login
-  - Customer dashboard
-  - Customer profile
-  - Multiple addresses
-  - Rewards and discounts
-  - Promotions
-  - Notifications
-  - Chat with specific branch
-  - Support and help - FAQ - Admin chat
-  - Multiple languages
-  - Modern UI
-  - Dynamic Theme
-  - Responsive UI (Desktop Only)
+> Status: in development. See [PLAN.md](PLAN.md) for the roadmap and the decisions
+> behind it. The pre-2023 prototype lives on the `UI_Only` branch and is not
+> carried forward.
 
-- Delivery app
-  - Live order tracking
-  - Order details
-  - QR code scanner to complete delivery
-  - Delivery login
-  - Delivery dashboard
-  - Delivery profile
-  - Modern UI
-  - Responsive UI (Desktop Only)
+## Stack
+
+| Layer | Choice |
+|---|---|
+| Backend | [PocketBase](https://pocketbase.io) — one binary: database, auth, realtime, file storage |
+| Apps | Flutter — one binary, three role-based shells (POS / KDS / Manager) |
+| Printing | ESC/POS over TCP 9100, with PDF fallback |
+
+## Running it locally
+
+```bash
+./server/scripts/dev.sh
+```
+
+First run downloads the pinned PocketBase version into `server/bin/` and applies
+the schema migrations. The admin UI is then at http://127.0.0.1:8090/_/.
+
+Verify the schema and the server-side money rules:
+
+```bash
+./server/scripts/smoke_test.sh
+```
+
+That spins up a throwaway database, exercises order numbering, modifier pricing,
+tax and service charge, voids, payments and table release, then tears itself down.
+It never touches your real data.
+
+## Running the app
+
+With the server up, in another terminal:
+
+```bash
+cd app && flutter run -d macos
+```
+
+`-d chrome`, `-d windows` and `-d linux` all work too. On first launch the app
+asks for a server address (`127.0.0.1:8090` if it is running on this machine),
+then walks through a three-step setup and signs you in.
+
+## How it is put together
+
+`server/pb_migrations/` is the schema, in version control, so a fresh install is
+reproducible. `server/pb_hooks/` holds the rules that cannot live on the client:
+order numbering and **all money math**. A point-of-sale system must never let a
+client tell the server what a bill costs, so every total is recomputed server-side
+on write and a forged total is simply overwritten.
+
+Menu names and prices are snapshotted onto each order line. Editing tomorrow's menu
+must never rewrite yesterday's bill.
