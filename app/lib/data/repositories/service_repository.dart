@@ -46,6 +46,25 @@ final orderProvider = StreamProvider.family<Order?, String>((ref, orderId) {
   ).map((list) => list.isEmpty ? null : list.first);
 });
 
+/// Everything the kitchen still has to make: sent, not yet served, not voided.
+final kitchenLinesProvider = StreamProvider<List<OrderLine>>(
+  (ref) => liveCollection(
+    ref,
+    'order_items',
+    OrderLine.fromRecord,
+    sort: 'sent_at,created',
+    filter: "sent_at != null && status != 'served' && status != 'void'",
+  ),
+);
+
+/// Ticks once a second so kitchen timers count up on their own.
+final clockProvider = StreamProvider<DateTime>(
+  (ref) => Stream<DateTime>.periodic(
+    const Duration(seconds: 1),
+    (_) => DateTime.now(),
+  ),
+);
+
 final serviceRepositoryProvider = Provider<ServiceRepository>(
   (ref) => ServiceRepository(ref.watch(pbProvider)),
 );
@@ -212,6 +231,35 @@ class ServiceRepository {
     });
 
     return pending.length;
+  }
+
+  // -------------------------------------------------------------- kitchen
+
+  Future<void> setLineStatus(String lineId, OrderItemStatus status) =>
+      _pb.collection('order_items').update(lineId, body: {'status': status.wire});
+
+  /// Moves every outstanding line on a ticket to [status] in one go.
+  ///
+  /// Returns how many lines moved, so the caller can say nothing happened
+  /// rather than silently doing nothing.
+  Future<int> setTicketStatus(String orderId, OrderItemStatus status) async {
+    final lines = await _pb.collection('order_items').getFullList(
+          filter: _pb.filter(
+            "order = {:oid} && sent_at != null && status != 'void'",
+            {'oid': orderId},
+          ),
+        );
+
+    var moved = 0;
+    for (final line in lines) {
+      if (line.getStringValue('status') == status.wire) continue;
+      await _pb.collection('order_items').update(
+            line.id,
+            body: {'status': status.wire},
+          );
+      moved++;
+    }
+    return moved;
   }
 
   Future<void> cancelOrder({

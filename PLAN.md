@@ -118,6 +118,12 @@ channel — it tints borders and timers, never status chips.
 Inter is bundled, not fetched, because nothing may load at runtime. Money always
 uses tabular figures so digits stop shifting as totals change.
 
+The two-channel rule proved itself on the kitchen display: a ticket's **border
+and timer** carry how long it has been waiting, while **dots and chips** carry
+what state each item is in. Because ageing never touches the status colours, a
+late ticket full of cooking items reads correctly at a glance — red frame, blue
+dots — instead of the two meanings fighting each other.
+
 ### Non-negotiables
 
 - **Totals are computed server-side.** A POS must never let a tampered client
@@ -182,8 +188,13 @@ because in a small restaurant the owner is also the waiter.
 Still to come here: split and merge tables, and moving a bill between tables
 (the repository supports the move; there is no UI for it yet).
 
-**Phase 3 — Kitchen display**
-Realtime tickets, per-item status, bump to ready, prep timers, ticket ageing colours.
+**Phase 3 — Kitchen display** ✅ *done*
+Tickets appear on the pass the moment the till sends them, sized to read from
+across a kitchen. Tapping an item walks it queued → cooking → ready; the ticket
+button plates the whole thing, then hands it to the floor and clears it. Timers
+count up from when the ticket was fired, and the card ages neutral → amber →
+red against the ten-minute target. A bill's status follows its lines, derived
+server-side so every terminal agrees.
 *Test: send an order from POS, watch it land in the kitchen instantly.*
 
 **Phase 4 — Payments, receipts, shifts**

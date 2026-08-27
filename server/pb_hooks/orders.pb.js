@@ -18,16 +18,27 @@ onRecordUpdate((e) => {
   e.next();
 }, "order_items");
 
-// Any change to a line rolls up into the parent order.
+// Any change to a line rolls up into the parent order: its money, and — for
+// order_items — how far through the kitchen it is.
 const rollUp = (e) => {
   e.next();
+  const orderId = e.record.getString("order");
   const money = require(`${__hooks}/lib_money.js`);
-  money.recomputeOrder(e.app, e.record.getString("order"));
+  money.recomputeOrder(e.app, orderId);
 };
 
-onRecordAfterCreateSuccess(rollUp, "order_items");
-onRecordAfterUpdateSuccess(rollUp, "order_items");
-onRecordAfterDeleteSuccess(rollUp, "order_items");
+const rollUpLine = (e) => {
+  e.next();
+  const orderId = e.record.getString("order");
+  const money = require(`${__hooks}/lib_money.js`);
+  money.recomputeOrder(e.app, orderId);
+  const kitchen = require(`${__hooks}/lib_kitchen.js`);
+  kitchen.deriveOrderStatus(e.app, orderId);
+};
+
+onRecordAfterCreateSuccess(rollUpLine, "order_items");
+onRecordAfterUpdateSuccess(rollUpLine, "order_items");
+onRecordAfterDeleteSuccess(rollUpLine, "order_items");
 onRecordAfterCreateSuccess(rollUp, "payments");
 onRecordAfterUpdateSuccess(rollUp, "payments");
 onRecordAfterDeleteSuccess(rollUp, "payments");

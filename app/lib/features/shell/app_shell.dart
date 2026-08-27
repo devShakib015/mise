@@ -9,6 +9,7 @@ import '../../data/models/restaurant.dart';
 import '../../data/models/staff.dart';
 import '../../core/util/ui_state.dart';
 import '../../data/session.dart';
+import '../kds/kds_screen.dart';
 import '../manager/manager_shell.dart';
 import '../pos/pos_shell.dart';
 
@@ -45,17 +46,7 @@ class AppShellScreen extends ConsumerWidget {
           Expanded(
             child: switch (shell) {
               AppShell.pos => const PosShell(),
-              AppShell.kitchen => const _Placeholder(
-                  shell: 'Kitchen display',
-                  icon: Icons.soup_kitchen_outlined,
-                  blurb: 'Live tickets, straight off the pass.',
-                  phase: 'Phase 3',
-                  coming: [
-                    'Realtime tickets the moment an order is sent',
-                    'Per-item status and bump to ready',
-                    'Prep timers and ticket ageing',
-                  ],
-                ),
+              AppShell.kitchen => const KdsScreen(),
               AppShell.manager => const ManagerShell(),
             },
           ),
@@ -156,116 +147,6 @@ class _StaffChip extends StatelessWidget {
     );
   }
 }
-
-/// Honest placeholder: says which shell you are in and what is coming to it,
-/// rather than faking an interface that does nothing.
-class _Placeholder extends StatelessWidget {
-  const _Placeholder({
-    required this.shell,
-    required this.icon,
-    required this.blurb,
-    required this.phase,
-    required this.coming,
-  });
-
-  final String shell;
-  final IconData icon;
-  final String blurb;
-  final String phase;
-  final List<String> coming;
-
-  @override
-  Widget build(BuildContext context) {
-    final p = context.palette;
-
-    return Center(
-      child: SingleChildScrollView(
-        padding: Space.screen,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 460),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: p.brandSubtle,
-                  borderRadius: Radii.large,
-                ),
-                child: Icon(icon, color: p.brand, size: 26),
-              ),
-              const SizedBox(height: Space.md),
-              Text(shell, style: AppType.headline.copyWith(color: p.textPrimary)),
-              const SizedBox(height: Space.xxs),
-              Text(blurb, style: AppType.body.copyWith(color: p.textSecondary)),
-              const SizedBox(height: Space.xl),
-              Container(
-                padding: const EdgeInsets.all(Space.md),
-                decoration: BoxDecoration(
-                  color: p.surface,
-                  borderRadius: Radii.large,
-                  border: Border.all(color: p.border),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text('COMING IN',
-                            style: AppType.overline.copyWith(color: p.textTertiary)),
-                        const SizedBox(width: Space.xs),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: Space.xs, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: p.brandSubtle,
-                            borderRadius: Radii.pill,
-                          ),
-                          child: Text(phase.toUpperCase(),
-                              style: AppType.overline.copyWith(color: p.brand)),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: Space.sm),
-                    for (final item in coming)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: Space.xs),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 6),
-                              child: Container(
-                                width: 5,
-                                height: 5,
-                                decoration: BoxDecoration(
-                                  color: p.textTertiary,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: Space.xs),
-                            Expanded(
-                              child: Text(item,
-                                  style: AppType.small
-                                      .copyWith(color: p.textSecondary)),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 
 class _ShellSwitcher extends ConsumerWidget {
   const _ShellSwitcher();
