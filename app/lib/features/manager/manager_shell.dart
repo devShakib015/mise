@@ -6,6 +6,7 @@ import '../../core/theme/app_typography.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/util/ui_state.dart';
 import '../../core/widgets/page_scaffold.dart';
+import 'floor/tables_page.dart';
 import 'menu/categories_page.dart';
 import 'menu/items_page.dart';
 import 'menu/modifiers_page.dart';
@@ -31,6 +32,7 @@ enum ManagerSection {
         ManagerSection.items ||
         ManagerSection.categories ||
         ManagerSection.modifiers ||
+        ManagerSection.tables ||
         ManagerSection.settings =>
           true,
         _ => false,
@@ -69,6 +71,7 @@ class ManagerShell extends ConsumerWidget {
                 ManagerSection.items => const ItemsPage(),
                 ManagerSection.categories => const CategoriesPage(),
                 ManagerSection.modifiers => const ModifiersPage(),
+                ManagerSection.tables => const TablesPage(),
                 ManagerSection.settings => const SettingsPage(),
                 _ => _NotYet(section: section),
               },

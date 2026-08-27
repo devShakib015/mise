@@ -172,10 +172,15 @@ service charge and receipt lines. All lists are realtime — a change on one
 device lands on the others without a refresh.
 *Test: build your real menu from scratch.*
 
-**Phase 2 — POS core**
-Floor plan and tables, take an order, modifiers and kitchen notes, send to kitchen,
-open orders list, move and merge tables.
+**Phase 2 — POS core** ✅ *done*
+Tables management, floor view with live bill totals per table, order taking with
+a modifier sheet, kitchen notes, quantities, send-to-kitchen, and voids that are
+recorded rather than silently deleted. Owners and managers get a shell switcher,
+because in a small restaurant the owner is also the waiter.
 *Test: take an order end to end.*
+
+Still to come here: split and merge tables, and moving a bill between tables
+(the repository supports the move; there is no UI for it yet).
 
 **Phase 3 — Kitchen display**
 Realtime tickets, per-item status, bump to ready, prep timers, ticket ageing colours.

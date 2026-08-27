@@ -7,8 +7,18 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/brand_mark.dart';
 import '../../data/models/restaurant.dart';
 import '../../data/models/staff.dart';
+import '../../core/util/ui_state.dart';
 import '../../data/session.dart';
 import '../manager/manager_shell.dart';
+import '../pos/pos_shell.dart';
+
+/// Lets an owner or manager step into another shell.
+///
+/// In a small restaurant the owner is also the waiter and sometimes the
+/// kitchen, so locking them into the back office by role would be wrong. Staff
+/// without management rights have no switcher and stay where their role puts
+/// them.
+final shellOverrideProvider = uiValue<AppShell?>(null);
 
 /// One app, three faces. The signed-in role decides which one opens.
 class AppShellScreen extends ConsumerWidget {
@@ -25,24 +35,16 @@ class AppShellScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
 
+    final shell = ref.watch(shellOverrideProvider) ?? staff.role.shell;
+
     return Scaffold(
       body: Column(
         children: [
           _TopBar(staff: staff, restaurant: restaurant),
           Divider(height: 1, color: p.border),
           Expanded(
-            child: switch (staff.role.shell) {
-              AppShell.pos => const _Placeholder(
-                  shell: 'Point of sale',
-                  icon: Icons.point_of_sale_outlined,
-                  blurb: 'Take orders, run the floor, settle bills.',
-                  phase: 'Phase 2',
-                  coming: [
-                    'Floor plan and table status',
-                    'Order taking with modifiers and kitchen notes',
-                    'Send to kitchen, then split, discount and settle',
-                  ],
-                ),
+            child: switch (shell) {
+              AppShell.pos => const PosShell(),
               AppShell.kitchen => const _Placeholder(
                   shell: 'Kitchen display',
                   icon: Icons.soup_kitchen_outlined,
@@ -94,6 +96,10 @@ class _TopBar extends ConsumerWidget {
             ],
           ),
           const Spacer(),
+          if (staff.role.canManage) ...[
+            const _ShellSwitcher(),
+            const SizedBox(width: Space.sm),
+          ],
           _StaffChip(staff: staff),
           const SizedBox(width: Space.xs),
           IconButton(
@@ -255,6 +261,69 @@ class _Placeholder extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+
+class _ShellSwitcher extends ConsumerWidget {
+  const _ShellSwitcher();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final p = context.palette;
+    final staff = ref.watch(currentStaffProvider);
+    if (staff == null) return const SizedBox.shrink();
+
+    final current = ref.watch(shellOverrideProvider) ?? staff.role.shell;
+
+    Widget tab(AppShell shell, IconData icon, String label) {
+      final selected = shell == current;
+      return Tooltip(
+        message: label,
+        child: Material(
+          color: selected ? p.surface : Colors.transparent,
+          borderRadius: Radii.small,
+          child: InkWell(
+            borderRadius: Radii.small,
+            onTap: () => ref.read(shellOverrideProvider.notifier).set(shell),
+            child: Container(
+              height: 32,
+              padding: const EdgeInsets.symmetric(horizontal: Space.sm),
+              child: Row(
+                children: [
+                  Icon(icon,
+                      size: 16, color: selected ? p.brand : p.textTertiary),
+                  const SizedBox(width: Space.xxs + 2),
+                  Text(
+                    label,
+                    style: AppType.caption.copyWith(
+                      color: selected ? p.textPrimary : p.textTertiary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: p.surfaceSunken,
+        borderRadius: Radii.medium,
+        border: Border.all(color: p.border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          tab(AppShell.pos, Icons.point_of_sale_outlined, 'Till'),
+          tab(AppShell.kitchen, Icons.soup_kitchen_outlined, 'Kitchen'),
+          tab(AppShell.manager, Icons.tune_rounded, 'Manage'),
+        ],
       ),
     );
   }

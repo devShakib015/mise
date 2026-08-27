@@ -1,9 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:pocketbase/pocketbase.dart';
 
+import '../live.dart';
 import '../models/menu.dart';
 import '../session.dart';
 
@@ -15,83 +14,53 @@ final pbProvider = Provider<PocketBase>((ref) {
   return ref.read(sessionProvider.notifier).pb;
 });
 
-/// Loads a collection and re-emits the whole list whenever anything in it
-/// changes.
-///
-/// Refetching rather than patching in place is deliberate: menu data is tens of
-/// rows, and a full reload cannot drift out of sync with the server the way
-/// incremental patching quietly can. Orders and the kitchen display will need
-/// the incremental treatment; the menu does not.
-Stream<List<T>> _liveCollection<T>(
-  Ref ref,
-  String collection,
-  T Function(RecordModel) mapper, {
-  String sort = '',
-}) {
-  final pb = ref.watch(pbProvider);
-  final controller = StreamController<List<T>>();
-  UnsubscribeFunc? unsubscribe;
-  var closed = false;
-
-  Future<void> refresh() async {
-    if (closed) return;
-    try {
-      final records = await pb.collection(collection).getFullList(sort: sort);
-      if (!closed) controller.add(records.map(mapper).toList());
-    } catch (err, stack) {
-      if (!closed) controller.addError(err, stack);
-    }
-  }
-
-  Future<void> start() async {
-    await refresh();
-    if (closed) return;
-    try {
-      unsubscribe = await pb.collection(collection).subscribe('*', (_) => refresh());
-    } catch (_) {
-      // Realtime unavailable — the list still loaded, it just will not
-      // live-update. Better than failing the screen outright.
-    }
-  }
-
-  unawaited(start());
-
-  ref.onDispose(() {
-    closed = true;
-    unsubscribe?.call();
-    controller.close();
-  });
-
-  return controller.stream;
-}
-
 final categoriesProvider = StreamProvider<List<Category>>(
-  (ref) => _liveCollection(ref, 'categories', Category.fromRecord,
+  (ref) => liveCollection(ref, 'categories', Category.fromRecord,
       sort: 'sort_order,name'),
 );
 
 final menuItemsProvider = StreamProvider<List<MenuItem>>(
-  (ref) => _liveCollection(ref, 'menu_items', MenuItem.fromRecord,
+  (ref) => liveCollection(ref, 'menu_items', MenuItem.fromRecord,
       sort: 'sort_order,name'),
 );
 
 final modifierGroupsProvider = StreamProvider<List<ModifierGroup>>(
-  (ref) => _liveCollection(ref, 'modifier_groups', ModifierGroup.fromRecord,
+  (ref) => liveCollection(ref, 'modifier_groups', ModifierGroup.fromRecord,
       sort: 'sort_order,name'),
 );
 
 final modifiersProvider = StreamProvider<List<Modifier>>(
-  (ref) => _liveCollection(ref, 'modifiers', Modifier.fromRecord,
+  (ref) => liveCollection(ref, 'modifiers', Modifier.fromRecord,
       sort: 'sort_order,name'),
 );
+
+/// Every item-to-modifier-group link, as a map of item id to group ids.
+///
+/// Loaded once for the whole menu rather than per item: the POS grid needs to
+/// know which tiles open a choice sheet, and asking that item by item would be
+/// a request per tile.
+final itemModifierLinksProvider =
+    StreamProvider<Map<String, List<String>>>((ref) {
+  return liveCollection(
+    ref,
+    'menu_item_modifiers',
+    (r) => (r.getStringValue('menu_item'), r.getStringValue('modifier_group')),
+    sort: 'sort_order',
+  ).map((pairs) {
+    final map = <String, List<String>>{};
+    for (final (itemId, groupId) in pairs) {
+      map.putIfAbsent(itemId, () => []).add(groupId);
+    }
+    return map;
+  });
+});
 
 /// Modifier groups attached to a given item, in display order.
 final itemModifierGroupIdsProvider =
     FutureProvider.family<List<String>, String>((ref, itemId) async {
   final pb = ref.watch(pbProvider);
   final records = await pb.collection('menu_item_modifiers').getFullList(
-        filter: 'menu_item = {:id}',
-        query: {'id': itemId},
+        filter: pb.filter('menu_item = {:id}', {'id': itemId}),
         sort: 'sort_order',
       );
   return records.map((r) => r.getStringValue('modifier_group')).toList();
@@ -251,8 +220,7 @@ class MenuRepository {
   /// Replaces the set of modifier groups attached to an item.
   Future<void> setItemModifierGroups(String itemId, List<String> groupIds) async {
     final existing = await _pb.collection('menu_item_modifiers').getFullList(
-          filter: 'menu_item = {:id}',
-          query: {'id': itemId},
+          filter: _pb.filter('menu_item = {:id}', {'id': itemId}),
         );
 
     for (final record in existing) {
