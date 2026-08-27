@@ -125,6 +125,7 @@ class Order {
     this.guestCount = 0,
     this.customerName = '',
     this.note = '',
+    this.discountReason = '',
   });
 
   final String id;
@@ -147,6 +148,9 @@ class Order {
   final String customerName;
   final String note;
 
+  /// Why the discount was given. Required whenever there is one.
+  final String discountReason;
+
   factory Order.fromRecord(RecordModel r) => Order(
         id: r.id,
         number: r.getStringValue('number'),
@@ -166,6 +170,7 @@ class Order {
         guestCount: r.getIntValue('guest_count'),
         customerName: r.getStringValue('customer_name'),
         note: r.getStringValue('note'),
+        discountReason: r.getStringValue('discount_reason'),
       );
 }
 
@@ -272,4 +277,56 @@ class OrderLine {
       sentAt: sent.isEmpty ? null : DateTime.tryParse(sent)?.toLocal(),
     );
   }
+}
+
+
+/// A network thermal printer. Receipt printers go by the till, kitchen ones by
+/// the pass, so the same bill can print in two places with different content.
+enum PrinterRole {
+  receipt,
+  kitchen,
+  bar;
+
+  static PrinterRole parse(String raw) => PrinterRole.values.firstWhere(
+        (r) => r.name == raw,
+        orElse: () => PrinterRole.receipt,
+      );
+
+  String get label => switch (this) {
+        PrinterRole.receipt => 'Receipts',
+        PrinterRole.kitchen => 'Kitchen',
+        PrinterRole.bar => 'Bar',
+      };
+}
+
+class Printer {
+  const Printer({
+    required this.id,
+    required this.name,
+    required this.host,
+    required this.port,
+    required this.role,
+    required this.paperWidth,
+    required this.active,
+  });
+
+  final String id;
+  final String name;
+  final String host;
+  final int port;
+  final PrinterRole role;
+
+  /// "58" or "80", matching the paper roll in millimetres.
+  final String paperWidth;
+  final bool active;
+
+  factory Printer.fromRecord(RecordModel r) => Printer(
+        id: r.id,
+        name: r.getStringValue('name'),
+        host: r.getStringValue('host'),
+        port: r.getIntValue('port'),
+        role: PrinterRole.parse(r.getStringValue('role')),
+        paperWidth: r.getStringValue('paper_width'),
+        active: r.getBoolValue('active'),
+      );
 }

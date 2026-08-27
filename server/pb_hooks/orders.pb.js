@@ -67,7 +67,7 @@ onRecordCreate((e) => {
     e.record.set("number", String(seq).padStart(3, "0"));
   }
 
-  if (!e.record.get("opened_at")) {
+  if (e.record.getString("opened_at") === "") {
     e.record.set("opened_at", new Date().toISOString());
   }
 
@@ -81,13 +81,49 @@ onRecordUpdate((e) => {
   const money = require(`${__hooks}/lib_money.js`);
   money.applyOrderTotals(e.app, e.record);
 
-  const status = e.record.getString("status");
-  if ((status === "paid" || status === "cancelled") && !e.record.get("closed_at")) {
+  let status = e.record.getString("status");
+
+  // A bill settles itself once it is covered. Deciding this here rather than in
+  // the app means a split paid across two terminals still closes exactly once,
+  // and only ever when the money actually adds up.
+  const inService = ["open", "sent", "preparing", "ready", "served"].indexOf(status) !== -1;
+  if (inService && e.record.getBool("paid")) {
+    status = "paid";
+    e.record.set("status", status);
+  }
+
+  // getString, not get: an empty date field is a zero DateTime *object*, which
+  // is truthy, so `!record.get(...)` never fires. Its zero value stringifies
+  // to "".
+  const alreadyClosed = e.record.getString("closed_at") !== "";
+  if ((status === "paid" || status === "cancelled") && !alreadyClosed) {
     e.record.set("closed_at", new Date().toISOString());
   }
 
   e.next();
 }, "orders");
+
+// Refuse money against a bill nobody owes anything on. Without this a stray
+// terminal could keep taking payments on a cancelled order.
+onRecordCreate((e) => {
+  let order;
+  try {
+    order = e.app.findRecordById("orders", e.record.getString("order"));
+  } catch (err) {
+    throw new BadRequestError("That bill no longer exists.");
+  }
+
+  if (order.getString("status") === "cancelled") {
+    throw new BadRequestError("This bill was cancelled.");
+  }
+
+  const amount = Number(e.record.getFloat("amount")) || 0;
+  if (amount <= 0) {
+    throw new BadRequestError("A payment has to be for more than zero.");
+  }
+
+  e.next();
+}, "payments");
 
 // A closed order frees its table.
 onRecordAfterUpdateSuccess((e) => {

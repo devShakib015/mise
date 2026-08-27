@@ -7,8 +7,10 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/page_scaffold.dart';
 import '../../data/models/service.dart';
 import '../../data/repositories/service_repository.dart';
+import '../../data/models/money.dart';
 import '../../data/session.dart';
 import 'pos_shell.dart';
+import 'shift_sheet.dart';
 
 /// The room at a glance. Tap a free table to seat a party, tap a busy one to
 /// pick its bill back up.
@@ -30,10 +32,17 @@ class FloorView extends ConsumerWidget {
         PageHeader(
           title: 'Floor',
           subtitle: 'Tap a table to open or pick up its bill.',
-          action: FilledButton.icon(
-            onPressed: () => _startTakeaway(context, ref),
-            icon: const Icon(Icons.takeout_dining_outlined, size: 18),
-            label: const Text('Takeaway'),
+          action: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const _ShiftChip(),
+              const SizedBox(width: Space.xs),
+              FilledButton.icon(
+                onPressed: () => _startTakeaway(context, ref),
+                icon: const Icon(Icons.takeout_dining_outlined, size: 18),
+                label: const Text('Takeaway'),
+              ),
+            ],
           ),
         ),
         Expanded(
@@ -150,6 +159,7 @@ class FloorView extends ConsumerWidget {
             type: OrderType.dineIn,
             tableId: table.id,
             guestCount: guests,
+            shiftId: ref.read(activeShiftProvider).value?.id,
           );
       ref.read(activeOrderIdProvider.notifier).set(order.id);
     } catch (err) {
@@ -168,6 +178,7 @@ class FloorView extends ConsumerWidget {
       final order = await ref.read(serviceRepositoryProvider).openOrder(
             staffId: staff.id,
             type: OrderType.takeaway,
+            shiftId: ref.read(activeShiftProvider).value?.id,
           );
       ref.read(activeOrderIdProvider.notifier).set(order.id);
     } catch (err) {
@@ -176,6 +187,62 @@ class FloorView extends ConsumerWidget {
             .showSnackBar(SnackBar(content: Text('Could not start the order: $err')));
       }
     }
+  }
+}
+
+/// Whether this till has a drawer open, and the way in to start or close one.
+class _ShiftChip extends ConsumerWidget {
+  const _ShiftChip();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final p = context.palette;
+    final shift = ref.watch(activeShiftProvider).value;
+    final open = shift != null;
+
+    return Tooltip(
+      message: open ? 'Close your shift' : 'Start your shift',
+      child: Material(
+        color: open ? p.successSubtle : p.surfaceSunken,
+        borderRadius: Radii.medium,
+        child: InkWell(
+          borderRadius: Radii.medium,
+          onTap: () => showShiftDialog(context, ref),
+          child: Container(
+            height: Hit.button,
+            padding: const EdgeInsets.symmetric(horizontal: Space.md),
+            decoration: BoxDecoration(
+              borderRadius: Radii.medium,
+              border: Border.all(color: open ? p.success : p.border),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  open ? Icons.lock_open_rounded : Icons.point_of_sale_outlined,
+                  size: 16,
+                  color: open ? p.success : p.textSecondary,
+                ),
+                const SizedBox(width: Space.xs),
+                Text(
+                  open ? _since(shift) : 'Start shift',
+                  style: AppType.bodyStrong.copyWith(
+                    color: open ? p.success : p.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static String _since(Shift shift) {
+    final at = shift.openedAt;
+    if (at == null) return 'Shift open';
+    two(int n) => n.toString().padLeft(2, '0');
+    return 'Since ${two(at.hour)}:${two(at.minute)}';
   }
 }
 

@@ -9,6 +9,8 @@ import '../../core/widgets/dialogs.dart';
 import '../../data/models/service.dart';
 import '../../data/repositories/service_repository.dart';
 import '../../data/session.dart';
+import 'discount_dialog.dart';
+import 'payment_sheet.dart';
 import 'pos_shell.dart';
 
 /// The running bill. Every figure below the lines comes back from the server —
@@ -51,21 +53,38 @@ class TicketPanel extends ConsumerWidget {
             padding: const EdgeInsets.all(Space.sm),
             child: Column(
               children: [
-                SizedBox(
-                  width: double.infinity,
-                  height: Hit.button,
-                  child: FilledButton.icon(
-                    onPressed: unsent == 0
-                        ? null
-                        : () => _send(context, ref),
-                    icon: const Icon(Icons.local_fire_department_rounded, size: 18),
-                    label: Text(
-                      unsent == 0
-                          ? 'Nothing new to send'
-                          : 'Send $unsent to the kitchen',
+                // Whatever is next gets the big button: fire the food while
+                // there is food to fire, then take the money.
+                if (unsent > 0)
+                  SizedBox(
+                    width: double.infinity,
+                    height: Hit.button,
+                    child: FilledButton.icon(
+                      onPressed: () => _send(context, ref),
+                      icon: const Icon(Icons.local_fire_department_rounded, size: 18),
+                      label: Text('Send $unsent to the kitchen'),
+                    ),
+                  )
+                else
+                  SizedBox(
+                    width: double.infinity,
+                    height: Hit.button,
+                    child: FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: order.paid ? p.success : p.brand,
+                      ),
+                      onPressed: live.isEmpty && !order.paid
+                          ? null
+                          : () => showPaymentSheet(context, order),
+                      icon: Icon(
+                        order.paid
+                            ? Icons.check_circle_outline_rounded
+                            : Icons.payments_outlined,
+                        size: 18,
+                      ),
+                      label: Text(order.paid ? 'Settled — receipt' : 'Settle bill'),
                     ),
                   ),
-                ),
                 const SizedBox(height: Space.xs),
                 Row(
                   children: [
@@ -78,12 +97,32 @@ class TicketPanel extends ConsumerWidget {
                         child: const Text('Back to floor'),
                       ),
                     ),
-                    const SizedBox(width: Space.xs),
+                    const SizedBox(width: Space.xxs),
+                    if (unsent > 0)
+                      IconButton(
+                        tooltip: 'Settle bill',
+                        onPressed: () => showPaymentSheet(context, order),
+                        icon: Icon(Icons.payments_outlined,
+                            size: 20, color: p.textSecondary),
+                      ),
+                    IconButton(
+                      tooltip: order.discountAmount > 0
+                          ? 'Discount applied'
+                          : 'Apply a discount',
+                      onPressed: order.paid
+                          ? null
+                          : () => showDiscountDialog(context, order),
+                      icon: Icon(
+                        Icons.percent_rounded,
+                        size: 20,
+                        color: order.discountAmount > 0 ? p.brand : p.textSecondary,
+                      ),
+                    ),
                     IconButton(
                       tooltip: 'Cancel this bill',
-                      onPressed: () => _cancel(context, ref),
+                      onPressed: order.paid ? null : () => _cancel(context, ref),
                       icon: Icon(Icons.delete_outline_rounded,
-                          size: 20, color: p.danger),
+                          size: 20, color: order.paid ? p.textTertiary : p.danger),
                     ),
                   ],
                 ),

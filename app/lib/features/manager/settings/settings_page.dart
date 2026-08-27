@@ -13,6 +13,7 @@ import '../../../core/widgets/search_picker.dart';
 import '../../../data/models/restaurant.dart';
 import '../../../data/session.dart';
 import '../../setup/currencies.dart';
+import 'printers_section.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -296,6 +297,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     enabled: canEdit && !_busy,
                   ),
                 ],
+              ),
+
+              _Section(
+                title: 'Printers',
+                description:
+                    'Network thermal printers. No driver needed — just the '
+                    'address from the printer\'s self-test page.',
+                children: [PrintersSection(canEdit: canEdit)],
               ),
 
               _Section(

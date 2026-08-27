@@ -3,7 +3,9 @@ import 'package:pocketbase/pocketbase.dart';
 
 import '../live.dart';
 import '../models/menu.dart';
+import '../models/money.dart';
 import '../models/service.dart';
+import '../session.dart';
 import 'menu_repository.dart' show pbProvider;
 
 final tablesProvider = StreamProvider<List<DiningTable>>(
@@ -65,6 +67,86 @@ final clockProvider = StreamProvider<DateTime>(
   ),
 );
 
+/// Payments taken against one bill.
+final paymentsProvider = StreamProvider.family<List<Payment>, String>(
+  (ref, orderId) => liveCollection(
+    ref,
+    'payments',
+    Payment.fromRecord,
+    sort: 'created',
+    filter: 'order = {:oid}',
+    params: {'oid': orderId},
+  ),
+);
+
+/// The signed-in staff member's open till session, if they have one.
+final activeShiftProvider = StreamProvider<Shift?>((ref) {
+  final staff = ref.watch(currentStaffProvider);
+  if (staff == null) return Stream.value(null);
+
+  return liveCollection(
+    ref,
+    'shifts',
+    Shift.fromRecord,
+    sort: '-opened_at',
+    filter: 'staff = {:sid} && closed_at = null',
+    params: {'sid': staff.id},
+  ).map((list) => list.isEmpty ? null : list.first);
+});
+
+final printersProvider = StreamProvider<List<Printer>>(
+  (ref) => liveCollection(ref, 'printers', Printer.fromRecord, sort: 'role,name'),
+);
+
+/// A closed-open window of trading, used as a provider key.
+class DateRange {
+  const DateRange(this.from, this.to);
+
+  /// Midnight to midnight for the day containing [d], in local time.
+  factory DateRange.day(DateTime d) {
+    final start = DateTime(d.year, d.month, d.day);
+    return DateRange(start, start.add(const Duration(days: 1)));
+  }
+
+  final DateTime from;
+  final DateTime to;
+
+  @override
+  bool operator ==(Object other) =>
+      other is DateRange && other.from == from && other.to == to;
+
+  @override
+  int get hashCode => Object.hash(from, to);
+}
+
+/// Bills *closed* in a window — settled or cancelled.
+///
+/// Deliberately keyed on when the bill closed rather than when it was opened.
+/// A table seated before a shift began and settled during it is that shift's
+/// takings; filtering on creation would credit the money to the wrong session
+/// and leave the drawer looking short.
+final closedOrdersProvider = StreamProvider.family<List<Order>, DateRange>(
+  (ref, range) => liveCollection(
+    ref,
+    'orders',
+    Order.fromRecord,
+    sort: 'closed_at',
+    filter: 'closed_at >= {:from} && closed_at < {:to}',
+    params: {'from': range.from.toUtc(), 'to': range.to.toUtc()},
+  ),
+);
+
+final rangePaymentsProvider = StreamProvider.family<List<Payment>, DateRange>(
+  (ref, range) => liveCollection(
+    ref,
+    'payments',
+    Payment.fromRecord,
+    sort: 'created',
+    filter: 'created >= {:from} && created < {:to}',
+    params: {'from': range.from.toUtc(), 'to': range.to.toUtc()},
+  ),
+);
+
 final serviceRepositoryProvider = Provider<ServiceRepository>(
   (ref) => ServiceRepository(ref.watch(pbProvider)),
 );
@@ -112,12 +194,14 @@ class ServiceRepository {
     String? tableId,
     int guestCount = 0,
     String customerName = '',
+    String? shiftId,
   }) async {
     final record = await _pb.collection('orders').create(body: {
       'type': type.wire,
       'status': OrderStatus.open.name,
       'staff': staffId,
       'table': ?tableId,
+      'shift': ?shiftId,
       'guest_count': guestCount,
       'customer_name': customerName.trim(),
     });
@@ -297,6 +381,153 @@ class ServiceRepository {
       'from': order.tableId,
       'to': toTableId,
     });
+  }
+
+  // -------------------------------------------------------------- payments
+
+  /// Records money against a bill. The server decides whether that settles it.
+  ///
+  /// [amount] is what comes off the bill; [tendered] is what the guest actually
+  /// handed over. Keeping them separate is what makes the drawer reconcile.
+  Future<void> takePayment({
+    required String orderId,
+    required PaymentMethod method,
+    required double amount,
+    required String staffId,
+    double tendered = 0,
+    double changeDue = 0,
+    String reference = '',
+  }) async {
+    await _pb.collection('payments').create(body: {
+      'order': orderId,
+      'method': method.name,
+      'amount': amount,
+      'tendered': tendered,
+      'change_due': changeDue,
+      'reference': reference.trim(),
+      'staff': staffId,
+    });
+  }
+
+  Future<void> voidPayment({
+    required Payment payment,
+    required String staffId,
+  }) async {
+    await _pb.collection('payments').delete(payment.id);
+    await _audit(staffId, 'void_payment', 'payments', payment.id, {
+      'order': payment.orderId,
+      'method': payment.method.name,
+      'amount': payment.amount,
+    });
+  }
+
+  /// Discounts, like voids, are money leaving the building. Always audited.
+  Future<void> applyDiscount({
+    required Order order,
+    required double amount,
+    required String reason,
+    required String staffId,
+  }) async {
+    await _pb.collection('orders').update(order.id, body: {
+      'discount_amount': amount,
+      'discount_reason': reason.trim(),
+    });
+    await _audit(staffId, 'discount', 'orders', order.id, {
+      'number': order.number,
+      'amount': amount,
+      'reason': reason.trim(),
+      'subtotal': order.subtotal,
+    });
+  }
+
+  // -------------------------------------------------------------- printers
+
+  Future<void> savePrinter({
+    String? id,
+    required String name,
+    required String host,
+    required int port,
+    required PrinterRole role,
+    required String paperWidth,
+    required bool active,
+  }) async {
+    final body = {
+      'name': name.trim(),
+      'host': host.trim(),
+      'port': port,
+      'role': role.name,
+      'paper_width': paperWidth,
+      'active': active,
+    };
+    if (id == null) {
+      await _pb.collection('printers').create(body: body);
+    } else {
+      await _pb.collection('printers').update(id, body: body);
+    }
+  }
+
+  Future<void> deletePrinter(String id) => _pb.collection('printers').delete(id);
+
+  // ---------------------------------------------------------------- shifts
+
+  Future<Shift> openShift({
+    required String staffId,
+    required double openingCash,
+  }) async {
+    final record = await _pb.collection('shifts').create(body: {
+      'staff': staffId,
+      'opened_at': DateTime.now().toUtc().toIso8601String(),
+      'opening_cash': openingCash,
+    });
+    return Shift.fromRecord(record);
+  }
+
+  /// What should be in the drawer: what it started with, plus every cash
+  /// payment taken since. Card and mobile never touch it.
+  Future<double> expectedCashFor(Shift shift) async {
+    final since = (shift.openedAt ?? DateTime.now()).toUtc();
+    final payments = await _pb.collection('payments').getFullList(
+          filter: _pb.filter(
+            "method = 'cash' && created >= {:since}",
+            {'since': since},
+          ),
+        );
+
+    var taken = 0.0;
+    for (final p in payments) {
+      taken += p.getDoubleValue('amount');
+    }
+    return _money(shift.openingCash + taken);
+  }
+
+  static double _money(double v) => (v * 100).round() / 100;
+
+  Future<Shift> closeShift({
+    required Shift shift,
+    required double countedCash,
+    required String staffId,
+    String note = '',
+  }) async {
+    // Rounded before storing: floating point leaves artefacts like
+    // -35.3400000000001, and money in the database should read as money.
+    final expected = _money(await expectedCashFor(shift));
+    final variance = _money(countedCash - expected);
+
+    final record = await _pb.collection('shifts').update(shift.id, body: {
+      'closed_at': DateTime.now().toUtc().toIso8601String(),
+      'closing_cash': countedCash,
+      'expected_cash': expected,
+      'variance': variance,
+      'note': note.trim(),
+    });
+
+    await _audit(staffId, 'close_shift', 'shifts', shift.id, {
+      'expected': expected,
+      'counted': countedCash,
+      'variance': variance,
+    });
+
+    return Shift.fromRecord(record);
   }
 
   /// Voids and discounts are where money walks out of a restaurant, so they

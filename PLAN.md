@@ -156,9 +156,20 @@ and reproducible on a fresh install.
 
 ## 5. Receipt printing
 
-Network thermal printers over **TCP port 9100** (ESC/POS), which is what virtually
-every restaurant printer already speaks and what works identically on desktop,
-tablet and web. PDF export as the fallback for anyone without a thermal printer.
+Network thermal printers over **TCP port 9100** (ESC/POS) — what virtually every
+restaurant printer already speaks, with no driver to install. A printer is just
+an address and a paper width.
+
+Two things learned building it:
+
+**A browser cannot open a raw socket**, so the web build cannot print. It says so
+plainly rather than failing in a way that looks like a fault. The till runs on
+desktop or a tablet; web is for the back office.
+
+**Thermal printers speak code pages, not Unicode.** A symbol like ৳ prints as
+noise, so any non-ASCII currency symbol falls back to its three-letter code —
+`3035.34 BDT` rather than a mangled glyph. Every printable byte the builder emits
+is plain ASCII, and there is a test that holds it to that.
 
 ## 6. Phases
 
@@ -197,14 +208,25 @@ red against the ten-minute target. A bill's status follows its lines, derived
 server-side so every terminal agrees.
 *Test: send an order from POS, watch it land in the kitchen instantly.*
 
-**Phase 4 — Payments, receipts, shifts**
-Split bills, cash and card and mobile, discounts and voids with audit trail, ESC/POS
-receipt printing, shift open/close, end-of-day Z-report.
+**Phase 4 — Payments, receipts, shifts** ✅ *done*
+Part payments that accumulate until a bill covers itself, cash with tendered and
+change, card and mobile with a reference. Discounts by percentage or amount,
+always with a reason, always audited. Receipts as ESC/POS over TCP 9100 with an
+exact on-screen preview. Shifts with an opening float, a counted close and the
+variance called out. A Z-report at close, and the same figures per day under
+Reports.
 *Test: close a bill and print a receipt.*
 
+Bills are reported by **when they closed**, not when they were opened. A table
+seated before a shift began and settled during it is that shift's takings;
+keying on creation credits the money to the wrong session and leaves the drawer
+looking short.
+
 **Phase 5 — Staff and reports**
-Roles and permissions, sales by day/item/staff/hour, CSV export.
-*Test: see yesterday's numbers.*
+Staff accounts and permissions, sales by item/staff/hour, CSV export. Daily
+takings already landed with Phase 4; what is left here is the breakdown and the
+people who manage it.
+*Test: add a waiter and let them sign in.*
 
 **Phase 6 — Packaging and distribution**
 macOS DMG, Windows installer, Linux AppImage, one-click setup, owner and developer
