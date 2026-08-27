@@ -1,4 +1,4 @@
-package com.devshakib.restaurant_cms
+package com.devshakib.mise
 
 import io.flutter.embedding.android.FlutterActivity
 

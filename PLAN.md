@@ -202,9 +202,17 @@ multi-branch, inventory and stock control, reservations.
 The 2022 customer app was built first and had nothing to send orders to. Ops first
 this time; the customer app plugs into a system that already works.
 
-## 7. Open question
+## 7. The name
 
-**The product needs a name.** `restaurant_cms` is the repo, not the product.
-Candidates: **Mise** (from *mise en place*), **Counter**, **Servewell**, **Pass**
-(the kitchen pass). Not blocking — building against a placeholder, renaming is one
-commit.
+The product is **Mise**, from *mise en place* — everything in its place before
+service. It is the one French term every professional kitchen actually uses, so
+it reads as built by someone who knows restaurants, and it is distinctive enough
+to find in a search.
+
+`restaurant_cms` remains the repository name. The two do not need to match.
+
+Rejected, and why, so this is not relitigated: **Counter** and **Pass** are common
+English words — unsearchable, and already taken by other products. **Ember** and
+**Expo** collide with well-known developer tools, which matters when developers
+are half the audience. **Servewell** was fine but reads like legacy hospitality
+software.

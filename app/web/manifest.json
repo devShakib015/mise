@@ -1,11 +1,11 @@
 {
-    "name": "restaurant_cms",
-    "short_name": "restaurant_cms",
+    "name": "Mise",
+    "short_name": "Mise",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Free, self-hosted restaurant management.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
