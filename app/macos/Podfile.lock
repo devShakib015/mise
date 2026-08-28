@@ -1,0 +1,30 @@
+PODS:
+  - file_picker_darwin (1.0.0):
+    - Flutter
+    - FlutterMacOS
+  - FlutterMacOS (1.0.0)
+  - shared_preferences_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+
+DEPENDENCIES:
+  - file_picker_darwin (from `Flutter/ephemeral/.symlinks/plugins/file_picker_darwin/darwin`)
+  - FlutterMacOS (from `Flutter/ephemeral`)
+  - shared_preferences_foundation (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin`)
+
+EXTERNAL SOURCES:
+  file_picker_darwin:
+    :path: Flutter/ephemeral/.symlinks/plugins/file_picker_darwin/darwin
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+  shared_preferences_foundation:
+    :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin
+
+SPEC CHECKSUMS:
+  file_picker_darwin: 5c32d1a83c7cd2e4e2d2eaea629cf830b3b5dc49
+  FlutterMacOS: c232990155153907050900a2e175c7773903ba4e
+  shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
+
+PODFILE CHECKSUM: 1e95c36afbfd1cb6423ceca4de7a8e1b256fb6ac
+
+COCOAPODS: 1.17.0
