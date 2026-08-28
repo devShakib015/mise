@@ -51,6 +51,8 @@ Future<ServerStartResult> start({int port = 8090}) async {
         '--dir=${home.path}/pb_data',
         '--migrationsDir=${home.path}/pb_migrations',
         '--hooksDir=${home.path}/pb_hooks',
+        // The page a guest gets when they scan the QR on their table.
+        '--publicDir=${home.path}/pb_public',
         // 0.0.0.0, not 127.0.0.1: the waiters' tablets and the kitchen screen
         // have to be able to reach this machine.
         '--http=0.0.0.0:$port',
@@ -119,6 +121,7 @@ Future<String> _stage(Directory home) async {
   var version = '0';
   final migrations = <String>[];
   final hooks = <String>[];
+  final public = <String>[];
 
   for (final line in manifest.split('\n')) {
     final i = line.indexOf('=');
@@ -134,6 +137,8 @@ Future<String> _stage(Directory home) async {
         migrations.add(value);
       case 'hook':
         hooks.add(value);
+      case 'public':
+        public.add(value);
     }
   }
 
@@ -159,6 +164,9 @@ Future<String> _stage(Directory home) async {
     }
     for (final h in hooks) {
       await write('assets/server/pb_hooks/$h', File('${home.path}/pb_hooks/$h'));
+    }
+    for (final f in public) {
+      await write('assets/server/pb_public/$f', File('${home.path}/pb_public/$f'));
     }
 
     // Flutter's asset bundle carries no file mode, so the binary lands without

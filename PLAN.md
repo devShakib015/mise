@@ -248,9 +248,24 @@ macOS DMG, Windows installer, Linux AppImage, one-click setup, owner and develop
 docs, GitHub Releases, landing page on the portfolio.
 *Test: install it on a clean machine like a stranger would.*
 
+### Table-side ordering ✅ *done*
+A guest scans the QR on their table and orders from their own phone — a web
+page, not an app to install. It rides on the same server and port, so nothing is
+exposed to the internet and there is no second thing to run.
+
+Guests reach exactly three public routes; all fourteen collections stay
+staff-only. No price ever comes from the request. Their items land on the
+table's bill **unsent**, and a waiter fires them — a stranger on the wi-fi
+cannot put food on the pass.
+
 ### Later, deliberately not in v1
-Customer ordering app, QR-code table menu, delivery app and driver tracking,
-multi-branch, inventory and stock control, reservations.
+Public online ordering from outside the restaurant, delivery app and driver
+tracking, multi-branch, inventory and stock control, reservations.
+
+Ordering from home would need the restaurant's machine reachable from the
+internet — a tunnel, port forwarding or a cloud host. That trades away the
+offline guarantee and, depending on the route, the zero cost. Worth doing
+deliberately, not by drifting into it.
 
 The 2022 customer app was built first and had nothing to send orders to. Ops first
 this time; the customer app plugs into a system that already works.

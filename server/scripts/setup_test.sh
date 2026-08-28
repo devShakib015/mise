@@ -24,7 +24,7 @@ trap cleanup EXIT
 
 rm -rf "$DATA"
 ./bin/pocketbase migrate up --dir="$DATA" --migrationsDir=./pb_migrations >/dev/null
-./bin/pocketbase serve --dir="$DATA" --migrationsDir=./pb_migrations --hooksDir=./pb_hooks \
+./bin/pocketbase serve --dir="$DATA" --migrationsDir=./pb_migrations --hooksDir=./pb_hooks --publicDir=./pb_public \
   --http="127.0.0.1:${PORT}" >/dev/null 2>&1 &
 
 for _ in $(seq 1 40); do

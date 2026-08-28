@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Menu</title>
+<style>
+/* One file, no framework, no web font. A guest scans a code and waits; every
+   kilobyte is a second of them staring at a blank screen. */
+:root {
+  --canvas: #F5F5F4; --surface: #FFFFFF; --sunken: #FAFAF9;
+  --border: #E7E5E4; --border-strong: #D6D3D1;
+  --text: #1C1917; --muted: #57534E; --faint: #78716C;
+  --brand: #C2410C; --brand-soft: #FFEDD5; --on-brand: #FFFFFF;
+  --danger: #DC2626; --ok: #059669;
+  --radius: 14px; --shadow: 0 1px 2px rgba(12,10,9,.06), 0 8px 24px rgba(12,10,9,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --canvas: #0C0A09; --surface: #1C1917; --sunken: #232020;
+    --border: #292524; --border-strong: #44403C;
+    --text: #FAFAF9; --muted: #A8A29E; --faint: #78716C;
+    --brand: #EA580C; --brand-soft: #2B1206; --on-brand: #FFFFFF;
+    --danger: #F87171; --ok: #34D399;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  }
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--canvas); color: var(--text);
+  font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  padding-bottom: env(safe-area-inset-bottom);
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 620px; margin: 0 auto; }
+.pad { padding: 0 16px; }
+
+header { padding: 22px 16px 12px; }
+h1 { margin: 0; font-size: 22px; letter-spacing: -.4px; }
+.where { color: var(--faint); font-size: 13px; margin-top: 2px; }
+
+nav {
+  position: sticky; top: 0; z-index: 5; background: var(--canvas);
+  padding: 10px 0 8px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+nav::-webkit-scrollbar { display: none; }
+nav .row { display: flex; gap: 8px; padding: 0 16px; width: max-content; }
+nav button {
+  font: inherit; font-weight: 600; white-space: nowrap;
+  padding: 9px 15px; border-radius: 999px; cursor: pointer;
+  background: var(--surface); color: var(--text); border: 1px solid var(--border);
+}
+nav button[aria-selected="true"] { background: var(--brand); color: var(--on-brand); border-color: var(--brand); }
+
+.item {
+  display: flex; gap: 12px; width: 100%; text-align: left; font: inherit;
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 13px; margin-bottom: 8px; cursor: pointer;
+}
+.item:disabled { opacity: .55; cursor: default; }
+/* Both are spans inside a flex child, so they stack only if told to. */
+.item .name { display: block; font-weight: 600; }
+.item .desc { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
+.item .tags { display: block; margin-top: 2px; }
+.item .price { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.item .grow { flex: 1; min-width: 0; }
+.badge {
+  display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .3px;
+  padding: 2px 7px; border-radius: 999px; margin-left: 6px;
+  background: color-mix(in srgb, var(--danger) 15%, transparent); color: var(--danger);
+}
+.tag {
+  display: inline-block; font-size: 11px; color: var(--faint);
+  border: 1px solid var(--border); border-radius: 999px; padding: 1px 7px; margin: 4px 4px 0 0;
+}
+
+/* The bar is the only thing pinned; everything else scrolls under it. */
+#bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+  background: var(--surface); border-top: 1px solid var(--border);
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  transform: translateY(120%); transition: transform .22s cubic-bezier(.2,.8,.2,1);
+}
+#bar.up { transform: none; }
+#bar .inner { max-width: 620px; margin: 0 auto; }
+button.primary {
+  width: 100%; font: inherit; font-weight: 600; font-size: 16px;
+  background: var(--brand); color: var(--on-brand); border: 0;
+  border-radius: 12px; padding: 15px; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+}
+button.primary:disabled { opacity: .5; }
+button.ghost {
+  width: 100%; font: inherit; font-weight: 600; background: transparent;
+  color: var(--muted); border: 1px solid var(--border-strong);
+  border-radius: 12px; padding: 13px; cursor: pointer; margin-top: 8px;
+}
+.tnum { font-variant-numeric: tabular-nums; }
+
+dialog {
+  border: 0; padding: 0; background: transparent; max-width: 100%; width: 100%;
+  margin: auto auto 0;
+}
+dialog::backdrop { background: rgba(0,0,0,.5); }
+.sheet {
+  background: var(--surface); border-radius: 20px 20px 0 0;
+  padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+  max-width: 620px; margin: 0 auto; max-height: 88vh; overflow-y: auto;
+  box-shadow: var(--shadow);
+}
+@media (min-width: 640px) {
+  dialog { margin: auto; }
+  .sheet { border-radius: 20px; }
+}
+.sheet h2 { margin: 0 0 2px; font-size: 19px; letter-spacing: -.3px; }
+.sheet .sub { color: var(--faint); font-size: 13px; margin-bottom: 16px; }
+fieldset { border: 0; padding: 0; margin: 0 0 16px; }
+legend { font-weight: 600; font-size: 14px; padding: 0; margin-bottom: 8px; }
+legend .req { color: var(--brand); font-weight: 600; font-size: 12px; margin-left: 6px; }
+legend .opt { color: var(--faint); font-weight: 400; font-size: 12px; margin-left: 6px; }
+.opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.opt-btn {
+  font: inherit; cursor: pointer; padding: 10px 14px; border-radius: 10px;
+  background: var(--sunken); color: var(--text); border: 1px solid var(--border);
+  min-height: 44px;
+}
+.opt-btn[aria-pressed="true"] { background: var(--brand-soft); border-color: var(--brand); color: var(--brand); font-weight: 600; }
+.opt-btn .delta { color: var(--faint); font-size: 12px; margin-left: 6px; }
+.opt-btn[aria-pressed="true"] .delta { color: var(--brand); }
+label.field { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+input[type=text] {
+  width: 100%; font: inherit; padding: 12px; border-radius: 10px;
+  background: var(--sunken); color: var(--text); border: 1px solid var(--border);
+}
+.qty { display: flex; align-items: center; gap: 14px; margin: 4px 0 16px; }
+.qty button {
+  width: 44px; height: 44px; font: inherit; font-size: 20px; cursor: pointer;
+  background: var(--sunken); color: var(--text);
+  border: 1px solid var(--border); border-radius: 10px;
+}
+.qty span { font-size: 18px; font-weight: 600; min-width: 30px; text-align: center; }
+
+.line { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.line:last-of-type { border-bottom: 0; }
+.line .q { color: var(--faint); font-variant-numeric: tabular-nums; min-width: 26px; }
+.line .mods { color: var(--faint); font-size: 12.5px; }
+.line .note { color: var(--brand); font-size: 12.5px; font-style: italic; }
+.line button {
+  font: inherit; background: none; border: 0; color: var(--faint);
+  cursor: pointer; font-size: 18px; padding: 0 4px; line-height: 1;
+}
+.total { display: flex; justify-content: space-between; align-items: baseline;
+  font-weight: 700; font-size: 18px; padding-top: 12px; margin-top: 4px; border-top: 1px solid var(--border); }
+
+.msg { padding: 12px 14px; border-radius: 12px; font-size: 14px; margin: 12px 0; }
+.msg.err { background: color-mix(in srgb, var(--danger) 12%, transparent); color: var(--danger); }
+.msg.ok  { background: color-mix(in srgb, var(--ok) 12%, transparent); color: var(--ok); }
+.centre { text-align: center; padding: 56px 24px; color: var(--muted); }
+.spinner {
+  width: 22px; height: 22px; border: 2.5px solid var(--border);
+  border-top-color: var(--brand); border-radius: 50%;
+  animation: spin .7s linear infinite; margin: 0 auto 14px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+.foot { text-align: center; color: var(--faint); font-size: 12px; padding: 26px 16px 100px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="app"><div class="centre"><div class="spinner"></div>Loading the menu…</div></div>
+</div>
+
+<div id="bar"><div class="inner">
+  <button class="primary" id="review">
+    <span id="review-count">Your order</span>
+    <span class="tnum" id="review-total"></span>
+  </button>
+</div></div>
+
+<dialog id="sheet"><div class="sheet" id="sheet-body"></div></dialog>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+const state = { menu: null, table: null, cat: null, cart: [], sending: false };
+let sym = "";
+
+const money = (n) => sym + Number(n || 0).toFixed(2);
+
+function lineTotal(l) {
+  const extra = l.modifiers.reduce((s, m) => s + Number(m.price_delta || 0), 0);
+  return (l.price + extra) * l.qty;
+}
+const cartTotal = () => state.cart.reduce((s, l) => s + lineTotal(l), 0);
+const cartCount = () => state.cart.reduce((s, l) => s + l.qty, 0);
+
+async function boot() {
+  const params = new URLSearchParams(location.search);
+  const code = params.get("t") || params.get("table");
+
+  if (!code) {
+    return fail("Scan the code on your table",
+      "This page is opened by scanning the QR code on your table. Ask a member of staff if there isn't one.");
+  }
+
+  try {
+    const [table, menu] = await Promise.all([
+      fetch("/api/app/table/" + encodeURIComponent(code)).then(okJson),
+      fetch("/api/app/menu").then(okJson),
+    ]);
+    state.table = table;
+    state.menu = menu;
+    sym = menu.restaurant.currency_symbol || "";
+    state.cat = (menu.categories[0] || {}).id || null;
+    document.title = menu.restaurant.name + " — Menu";
+    render();
+  } catch (e) {
+    fail("We couldn't load the menu", e.message || "Please ask a member of staff.");
+  }
+}
+
+async function okJson(r) {
+  const body = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(body.message || "Something went wrong.");
+  return body;
+}
+
+function fail(title, detail) {
+  $("app").innerHTML =
+    '<div class="centre"><strong style="display:block;color:var(--text);font-size:17px;margin-bottom:6px">' +
+    esc(title) + "</strong>" + esc(detail) + "</div>";
+}
+
+function render() {
+  const m = state.menu;
+  const items = m.items.filter((i) => i.category === state.cat);
+
+  $("app").innerHTML =
+    "<header><h1>" + esc(m.restaurant.name) + "</h1>" +
+    '<div class="where">Table ' + esc(state.table.label) +
+    (state.table.zone ? " · " + esc(state.table.zone) : "") + "</div></header>" +
+    '<nav><div class="row">' +
+      m.categories.map((c) =>
+        '<button role="tab" aria-selected="' + (c.id === state.cat) +
+        '" data-cat="' + esc(c.id) + '">' + esc(c.name) + "</button>").join("") +
+    "</div></nav>" +
+    '<div class="pad">' +
+      (items.length === 0
+        ? '<div class="centre">Nothing in this section just now.</div>'
+        : items.map(itemRow).join("")) +
+    "</div>" +
+    '<div class="foot">Your order goes to the staff, who bring it to your table.</div>';
+
+  $("app").querySelectorAll("nav button").forEach((b) =>
+    b.onclick = () => { state.cat = b.dataset.cat; render(); });
+  $("app").querySelectorAll(".item").forEach((b) =>
+    b.onclick = () => openItem(b.dataset.item));
+
+  syncBar();
+}
+
+function itemRow(i) {
+  const tags = (i.tags || []).map((t) =>
+    '<span class="tag">' + esc(String(t).replace(/_/g, " ")) + "</span>").join("");
+  return '<button class="item" data-item="' + esc(i.id) + '"' + (i.available ? "" : " disabled") + ">" +
+    '<span class="grow"><span class="name">' + esc(i.name) +
+    (i.available ? "" : '<span class="badge">SOLD OUT</span>') + "</span>" +
+    (i.description ? '<span class="desc">' + esc(i.description) + "</span>" : "") +
+    (tags ? '<span class="tags">' + tags + "</span>" : "") +
+    '</span><span class="price">' + money(i.price) + "</span></button>";
+}
+
+function openItem(id) {
+  const item = state.menu.items.find((i) => i.id === id);
+  if (!item || !item.available) return;
+
+  const groups = item.groups
+    .map((gid) => state.menu.groups.find((g) => g.id === gid))
+    .filter(Boolean);
+
+  const picked = {};
+  let qty = 1;
+
+  function draw() {
+    const chosen = [];
+    for (const g of groups) {
+      for (const mid of picked[g.id] || []) {
+        const mod = g.modifiers.find((m) => m.id === mid);
+        if (mod) chosen.push(mod);
+      }
+    }
+    const unit = item.price + chosen.reduce((s, m) => s + Number(m.price_delta || 0), 0);
+    const missing = groups.find((g) => g.required && !(picked[g.id] || []).length);
+
+    $("sheet-body").innerHTML =
+      "<h2>" + esc(item.name) + "</h2>" +
+      '<div class="sub">' + money(item.price) +
+        (item.description ? " · " + esc(item.description) : "") + "</div>" +
+      groups.map((g) =>
+        "<fieldset><legend>" + esc(g.name) +
+        (g.required ? '<span class="req">Required</span>'
+                    : '<span class="opt">Optional' + (g.max > 1 ? ", up to " + g.max : "") + "</span>") +
+        '</legend><div class="opts">' +
+        g.modifiers.map((mo) =>
+          '<button class="opt-btn" data-g="' + esc(g.id) + '" data-m="' + esc(mo.id) + '" ' +
+          'aria-pressed="' + ((picked[g.id] || []).includes(mo.id)) + '">' + esc(mo.name) +
+          (Number(mo.price_delta) ? '<span class="delta">' +
+            (mo.price_delta > 0 ? "+" : "−") + money(Math.abs(mo.price_delta)) + "</span>" : "") +
+          "</button>").join("") +
+        "</div></fieldset>").join("") +
+      '<label class="field" for="note">Anything the kitchen should know?</label>' +
+      '<input type="text" id="note" maxlength="200" placeholder="Allergy, no onions, well done">' +
+      '<div class="qty"><button id="minus" aria-label="Fewer">−</button>' +
+      '<span id="q">' + qty + "</span>" +
+      '<button id="plus" aria-label="More">+</button></div>' +
+      '<button class="primary" id="add"' + (missing ? " disabled" : "") + ">" +
+        "<span>" + (missing ? "Choose " + esc(missing.name.toLowerCase()) : "Add to order") + "</span>" +
+        '<span class="tnum">' + money(unit * qty) + "</span></button>" +
+      '<button class="ghost" id="cancel">Cancel</button>';
+
+    $("sheet-body").querySelectorAll(".opt-btn").forEach((b) => {
+      b.onclick = () => {
+        const g = groups.find((x) => x.id === b.dataset.g);
+        const cur = picked[g.id] || [];
+        const has = cur.includes(b.dataset.m);
+        // One-choice groups swap; multi-choice fill up and then stop.
+        if (has) picked[g.id] = cur.filter((x) => x !== b.dataset.m);
+        else if (g.max <= 1) picked[g.id] = [b.dataset.m];
+        else if (cur.length < g.max) picked[g.id] = cur.concat(b.dataset.m);
+        const note = $("note").value; draw(); $("note").value = note;
+      };
+    });
+    $("minus").onclick = () => { if (qty > 1) { qty--; const n = $("note").value; draw(); $("note").value = n; } };
+    $("plus").onclick  = () => { if (qty < 20) { qty++; const n = $("note").value; draw(); $("note").value = n; } };
+    $("cancel").onclick = () => $("sheet").close();
+    $("add").onclick = () => {
+      state.cart.push({
+        item_id: item.id, name: item.name, price: item.price, qty: qty,
+        modifiers: chosen.map((m) => ({ id: m.id, name: m.name, price_delta: m.price_delta })),
+        note: $("note").value.trim(),
+      });
+      $("sheet").close();
+      syncBar();
+    };
+  }
+
+  draw();
+  $("sheet").showModal();
+}
+
+function syncBar() {
+  const n = cartCount();
+  $("bar").classList.toggle("up", n > 0);
+  $("review-count").textContent = n === 1 ? "Review 1 item" : "Review " + n + " items";
+  $("review-total").textContent = money(cartTotal());
+}
+
+$("review").onclick = function review() {
+  $("sheet-body").innerHTML =
+    "<h2>Your order</h2>" +
+    '<div class="sub">Table ' + esc(state.table.label) + "</div>" +
+    state.cart.map((l, idx) =>
+      '<div class="line"><span class="q">' + l.qty + "×</span>" +
+      "<span style=\"flex:1\"><span>" + esc(l.name) + "</span>" +
+      (l.modifiers.length ? '<div class="mods">' + esc(l.modifiers.map((m) => m.name).join(", ")) + "</div>" : "") +
+      (l.note ? '<div class="note">' + esc(l.note) + "</div>" : "") +
+      '</span><span class="tnum">' + money(lineTotal(l)) + "</span>" +
+      '<button data-rm="' + idx + '" aria-label="Remove">×</button></div>').join("") +
+    '<div class="total"><span>Total</span><span class="tnum">' + money(cartTotal()) + "</span></div>" +
+    '<div class="sub" style="margin-top:10px">Service and tax are added to the bill at the table.</div>' +
+    '<div id="msg"></div>' +
+    '<button class="primary" id="send" style="margin-top:8px"><span>Send to the kitchen staff</span></button>' +
+    '<button class="ghost" id="more">Add something else</button>';
+
+  $("sheet-body").querySelectorAll("[data-rm]").forEach((b) => {
+    b.onclick = () => {
+      state.cart.splice(Number(b.dataset.rm), 1);
+      syncBar();
+      if (state.cart.length) review(); else $("sheet").close();
+    };
+  });
+  $("more").onclick = () => $("sheet").close();
+  $("send").onclick = send;
+  $("sheet").showModal();
+};
+
+async function send() {
+  if (state.sending || !state.cart.length) return;
+  state.sending = true;
+  $("send").disabled = true;
+  $("send").innerHTML = "<span>Sending…</span>";
+  $("msg").innerHTML = "";
+
+  try {
+    const res = await fetch("/api/app/guest-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        table: state.table.id,
+        items: state.cart.map((l) => ({
+          item_id: l.item_id, qty: l.qty,
+          modifiers: l.modifiers.map((m) => m.id), note: l.note,
+        })),
+      }),
+    }).then(okJson);
+
+    state.cart = [];
+    syncBar();
+    $("sheet-body").innerHTML =
+      '<div class="centre"><strong style="display:block;color:var(--text);font-size:19px;margin-bottom:8px">' +
+      "That's with the staff</strong>" +
+      "Order #" + esc(res.order_number) + " for table " + esc(res.table) + ".<br>" +
+      "Someone will confirm it with you shortly." +
+      '<div style="margin-top:22px"><button class="ghost" id="again">Order something else</button></div></div>';
+    $("again").onclick = () => { $("sheet").close(); render(); };
+  } catch (e) {
+    $("msg").innerHTML = '<div class="msg err">' + esc(e.message) + "</div>";
+    $("send").disabled = false;
+    $("send").innerHTML = "<span>Try again</span>";
+  } finally {
+    state.sending = false;
+  }
+}
+
+boot();
+</script>
+</body>
+</html>

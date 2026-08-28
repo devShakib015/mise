@@ -10,6 +10,7 @@ import '../../../core/widgets/dialogs.dart';
 import '../../../core/widgets/page_scaffold.dart';
 import '../../../data/models/service.dart';
 import '../../../data/repositories/service_repository.dart';
+import 'table_qr_dialog.dart';
 
 class TablesPage extends ConsumerWidget {
   const TablesPage({super.key});
@@ -23,10 +24,24 @@ class TablesPage extends ConsumerWidget {
         PageHeader(
           title: 'Tables',
           subtitle: 'Your floor. Group them into zones if the room has sections.',
-          action: FilledButton.icon(
-            onPressed: () => _edit(context, null),
-            icon: const Icon(Icons.add_rounded, size: 18),
-            label: const Text('New table'),
+          action: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              OutlinedButton.icon(
+                onPressed: () => showTableCodes(
+                  context,
+                  tables.value ?? const <DiningTable>[],
+                ),
+                icon: const Icon(Icons.qr_code_2_rounded, size: 18),
+                label: const Text('Table codes'),
+              ),
+              const SizedBox(width: Space.xs),
+              FilledButton.icon(
+                onPressed: () => _edit(context, null),
+                icon: const Icon(Icons.add_rounded, size: 18),
+                label: const Text('New table'),
+              ),
+            ],
           ),
         ),
         Expanded(
