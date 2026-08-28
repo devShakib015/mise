@@ -10,11 +10,15 @@ paid tier. The restaurant's data lives on the restaurant's machine.
 Because the server runs on-site, **the POS keeps taking orders when the internet
 goes down** — which for a restaurant matters more than almost anything else.
 
-> Status: in development on the `v2` branch. Phases 0–5 are done — menu, till,
-> kitchen display, payments, receipts, shifts, staff and reporting. What remains
-> is Phase 6: installers and distribution. See [PLAN.md](PLAN.md) for the roadmap
-> and the decisions behind it. The pre-2023 prototype lives on the `UI_Only`
-> branch and is not carried forward.
+> Status: in development on the `v2` branch. Phases 0–5 are done, and Phase 6 is
+> under way — macOS installs from a DMG and runs its own server. Windows and
+> Linux packaging are still to do. See [PLAN.md](PLAN.md) for the roadmap and the
+> decisions behind it. The pre-2023 prototype lives on the `UI_Only` branch and
+> is not carried forward.
+
+**[Installing on a Mac](docs/install-macos.md)** ·
+**[Running your restaurant](docs/owner-guide.md)** ·
+**[Working on Mise](docs/developing.md)**
 
 ## Stack
 
@@ -58,17 +62,18 @@ Plus the Dart side, including a fake thermal printer on a real socket:
 cd app && flutter test
 ```
 
-## Running the app
+## Installing it
 
-With the server up, in another terminal:
+On the computer that will run the restaurant, install the DMG and choose **Run
+the restaurant on this computer**. The app unpacks PocketBase, starts it, and
+shows you the address for the tablets. No terminal, no second download, no
+account.
 
-```bash
-cd app && flutter run -d macos
-```
+Build the DMG yourself with `./installer/macos/build_dmg.sh`.
 
-`-d chrome`, `-d windows` and `-d linux` all work too. On first launch the app
-asks for a server address (`127.0.0.1:8090` if it is running on this machine),
-then walks through a three-step setup and signs you in.
+## Running it from source
+
+See [docs/developing.md](docs/developing.md).
 
 ## How it is put together
 
