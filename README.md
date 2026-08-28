@@ -10,10 +10,11 @@ paid tier. The restaurant's data lives on the restaurant's machine.
 Because the server runs on-site, **the POS keeps taking orders when the internet
 goes down** — which for a restaurant matters more than almost anything else.
 
-> Status: in development on the `v2` branch. Phases 0–4 are done — menu, till,
-> kitchen display, payments, receipts and shifts. See [PLAN.md](PLAN.md) for the
-> roadmap and the decisions behind it. The pre-2023 prototype lives on the
-> `UI_Only` branch and is not carried forward.
+> Status: in development on the `v2` branch. Phases 0–5 are done — menu, till,
+> kitchen display, payments, receipts, shifts, staff and reporting. What remains
+> is Phase 6: installers and distribution. See [PLAN.md](PLAN.md) for the roadmap
+> and the decisions behind it. The pre-2023 prototype lives on the `UI_Only`
+> branch and is not carried forward.
 
 ## Stack
 
@@ -38,7 +39,7 @@ Four backend suites, each spinning up a throwaway database on its own port and
 tearing it down afterwards. None of them touch your real data.
 
 ```bash
-for s in smoke setup kitchen payments; do ./server/scripts/${s}_test.sh; done
+for s in smoke setup kitchen payments staff; do ./server/scripts/${s}_test.sh; done
 ```
 
 - `smoke` — order numbering, modifier pricing, tax and service charge, voids,
@@ -48,6 +49,8 @@ for s in smoke setup kitchen payments; do ./server/scripts/${s}_test.sh; done
   touching bills which are not in service
 - `payments` — part payments, settlement, discounts, and refusing money against
   a cancelled bill
+- `staff` — resetting a forgotten PIN, and the guards that stop a manager
+  seizing an owner's account or the venue losing its last owner
 
 Plus the Dart side, including a fake thermal printer on a real socket:
 
