@@ -5,10 +5,10 @@ import '../../core/theme/app_palette.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/util/ui_state.dart';
-import '../../core/widgets/page_scaffold.dart';
 import 'floor/tables_page.dart';
 import 'reports/reports_page.dart';
 import 'menu/categories_page.dart';
+import 'people/staff_page.dart';
 import 'menu/items_page.dart';
 import 'menu/modifiers_page.dart';
 import 'settings/settings_page.dart';
@@ -28,17 +28,6 @@ enum ManagerSection {
   final IconData icon;
   final String group;
 
-  /// False for sections whose phase has not landed yet.
-  bool get isBuilt => switch (this) {
-        ManagerSection.items ||
-        ManagerSection.categories ||
-        ManagerSection.modifiers ||
-        ManagerSection.tables ||
-        ManagerSection.reports ||
-        ManagerSection.settings =>
-          true,
-        _ => false,
-      };
 }
 
 final managerSectionProvider = uiValue<ManagerSection>(ManagerSection.items);
@@ -74,9 +63,9 @@ class ManagerShell extends ConsumerWidget {
                 ManagerSection.categories => const CategoriesPage(),
                 ManagerSection.modifiers => const ModifiersPage(),
                 ManagerSection.tables => const TablesPage(),
+                ManagerSection.staff => const StaffPage(),
                 ManagerSection.reports => const ReportsPage(),
                 ManagerSection.settings => const SettingsPage(),
-                _ => _NotYet(section: section),
               },
             ),
           ],
@@ -186,8 +175,6 @@ class _NavTile extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (!section.isBuilt)
-                    Icon(Icons.schedule_rounded, size: 14, color: p.textTertiary),
                 ],
               ],
             ),
@@ -197,27 +184,5 @@ class _NavTile extends StatelessWidget {
     );
 
     return compact ? Tooltip(message: section.label, child: tile) : tile;
-  }
-}
-
-class _NotYet extends StatelessWidget {
-  const _NotYet({required this.section});
-
-  final ManagerSection section;
-
-  @override
-  Widget build(BuildContext context) {
-    final phase = switch (section) {
-      ManagerSection.tables => 'Phase 2, with the POS floor plan',
-      ManagerSection.staff => 'Phase 5, with roles and permissions',
-      ManagerSection.reports => 'Phase 5, with end-of-day and exports',
-      _ => 'a later phase',
-    };
-
-    return EmptyState(
-      icon: section.icon,
-      title: section.label,
-      message: 'This lands in $phase.',
-    );
   }
 }

@@ -147,6 +147,21 @@ final rangePaymentsProvider = StreamProvider.family<List<Payment>, DateRange>(
   ),
 );
 
+/// Lines belonging to bills closed in a window.
+///
+/// Filtered through the relation (`order.closed_at`) so it stays in step with
+/// [closedOrdersProvider] — the parts of a report must add up to its whole.
+final closedOrderLinesProvider = StreamProvider.family<List<OrderLine>, DateRange>(
+  (ref, range) => liveCollection(
+    ref,
+    'order_items',
+    OrderLine.fromRecord,
+    sort: 'created',
+    filter: "order.closed_at >= {:from} && order.closed_at < {:to} && status != 'void'",
+    params: {'from': range.from.toUtc(), 'to': range.to.toUtc()},
+  ),
+);
+
 final serviceRepositoryProvider = Provider<ServiceRepository>(
   (ref) => ServiceRepository(ref.watch(pbProvider)),
 );

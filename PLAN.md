@@ -124,6 +124,15 @@ what state each item is in. Because ageing never touches the status colours, a
 late ticket full of cooking items reads correctly at a glance — red frame, blue
 dots — instead of the two meanings fighting each other.
 
+### Reporting
+
+Takings are counted by **when a bill closed**, not when it was opened. A table
+seated before a shift began and settled during it is that shift's takings.
+
+Breakdowns are built from the same settled bills as the headline figures, so
+the parts always add up to the whole — the item values sum to gross sales, and
+they are meant to.
+
 ### Non-negotiables
 
 - **Totals are computed server-side.** A POS must never let a tampered client
@@ -222,11 +231,17 @@ seated before a shift began and settled during it is that shift's takings;
 keying on creation credits the money to the wrong session and leaves the drawer
 looking short.
 
-**Phase 5 — Staff and reports**
-Staff accounts and permissions, sales by item/staff/hour, CSV export. Daily
-takings already landed with Phase 4; what is left here is the breakdown and the
-people who manage it.
+**Phase 5 — Staff and reports** ✅ *done*
+Staff accounts with five roles, each described in plain English rather than by
+permission flags. A manager can reset a forgotten PIN without anyone opening the
+admin dashboard. Sales broken down by item, by who served it, and by hour, with
+a CSV export for the bookkeeper.
 *Test: add a waiter and let them sign in.*
+
+Two guards that cannot live in collection rules, so they live in hooks: the
+venue can never be left without an active owner, and a manager cannot reset an
+*owner's* PIN — otherwise resetting a PIN would be a way to seize the account
+above you.
 
 **Phase 6 — Packaging and distribution**
 macOS DMG, Windows installer, Linux AppImage, one-click setup, owner and developer

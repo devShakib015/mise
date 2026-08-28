@@ -126,6 +126,7 @@ class Order {
     this.customerName = '',
     this.note = '',
     this.discountReason = '',
+    this.closedAt,
   });
 
   final String id;
@@ -151,6 +152,9 @@ class Order {
   /// Why the discount was given. Required whenever there is one.
   final String discountReason;
 
+  /// When the bill was settled or cancelled. Null while it is still open.
+  final DateTime? closedAt;
+
   factory Order.fromRecord(RecordModel r) => Order(
         id: r.id,
         number: r.getStringValue('number'),
@@ -171,6 +175,9 @@ class Order {
         customerName: r.getStringValue('customer_name'),
         note: r.getStringValue('note'),
         discountReason: r.getStringValue('discount_reason'),
+        closedAt: r.getStringValue('closed_at').isEmpty
+            ? null
+            : DateTime.tryParse(r.getStringValue('closed_at'))?.toLocal(),
       );
 }
 
