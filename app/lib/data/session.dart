@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketbase/pocketbase.dart';
 
+import '../core/server/server_host.dart';
 import 'models/restaurant.dart';
 import 'models/staff.dart';
 import 'prefs.dart';
@@ -63,6 +64,19 @@ class SessionController extends Notifier<SessionState> {
   // ------------------------------------------------------------------ startup
 
   Future<void> _boot() async {
+    // A host machine that was restarted mid-service should come back on its
+    // own. Nobody is going to press a button in the office at 7pm.
+    if (_prefs.isHosting && ServerHost.isSupported) {
+      final result = await ServerHost.start();
+      if (result.ok) {
+        _hosted = result.server;
+        await _attach(result.server!.url, remember: true);
+        return;
+      }
+      state = SessionNeedsServer(error: result.error, lastUrl: _prefs.serverUrl);
+      return;
+    }
+
     final saved = _prefs.serverUrl;
     if (saved == null) {
       state = const SessionNeedsServer();
@@ -128,6 +142,29 @@ class SessionController extends Notifier<SessionState> {
     state = SessionNeedsAuth(serverUrl: url, venueName: status.name);
     return null;
   }
+
+  /// Starts the bundled server on this machine and connects to it.
+  ///
+  /// This is the path for the computer that will host: one download, one
+  /// button, no terminal.
+  Future<String?> hostHere() async {
+    state = const SessionBooting();
+
+    final result = await ServerHost.start();
+    if (!result.ok) {
+      state = SessionNeedsServer(error: result.error);
+      return result.error;
+    }
+
+    _hosted = result.server;
+    await _prefs.setHosting(true);
+    return _attach(result.server!.url, remember: true);
+  }
+
+  /// Set once this device is hosting, so the setup screens can read out the
+  /// address that tablets should join.
+  LocalServer? _hosted;
+  LocalServer? get hostedServer => _hosted;
 
   // ------------------------------------------------------------------- set up
 
@@ -261,7 +298,10 @@ class SessionController extends Notifier<SessionState> {
     _pb?.authStore.clear();
     await _prefs.clearAuthData();
     await _prefs.clearServerUrl();
+    await _prefs.setHosting(false);
+    await ServerHost.stop();
     _pb = null;
+    _hosted = null;
     state = const SessionNeedsServer();
   }
 }

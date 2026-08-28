@@ -7,6 +7,7 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/app_field.dart';
 import '../../core/widgets/centered_panel.dart';
 import '../../core/widgets/message_banner.dart';
+import '../../core/server/server_host.dart';
 import '../../data/session.dart';
 
 /// Points this device at the machine running the server.
@@ -34,6 +35,22 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _host() async {
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+
+    final error = await ref.read(sessionProvider.notifier).hostHere();
+
+    if (!mounted) return;
+    setState(() {
+      _busy = false;
+      _error = error;
+    });
   }
 
   Future<void> _connect() async {
@@ -104,6 +121,37 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
                   )
                 : const Text('Connect'),
           ),
+
+          // The other half of setup: this machine can be the server. Offered
+          // only where it is actually possible, so nobody is shown a button
+          // their device cannot honour.
+          if (ServerHost.isSupported) ...[
+            const SizedBox(height: Space.lg),
+            Row(
+              children: [
+                Expanded(child: Divider(color: p.border)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: Space.sm),
+                  child: Text('or',
+                      style: AppType.small.copyWith(color: p.textTertiary)),
+                ),
+                Expanded(child: Divider(color: p.border)),
+              ],
+            ),
+            const SizedBox(height: Space.lg),
+            OutlinedButton.icon(
+              onPressed: _busy ? null : _host,
+              icon: const Icon(Icons.dns_rounded, size: 18),
+              label: const Text('Run the restaurant on this computer'),
+            ),
+            const SizedBox(height: Space.xs),
+            Text(
+              'Sets everything up here. Tablets and the kitchen screen then '
+              'join this machine over your wi-fi.',
+              textAlign: TextAlign.center,
+              style: AppType.small.copyWith(color: p.textTertiary),
+            ),
+          ],
         ],
       ),
     );

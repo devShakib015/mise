@@ -18,3 +18,6 @@ installer/out/
 .DS_Store
 *.log
 .claude/
+
+# Server staged into the app at build time by app/scripts/bundle_server.sh
+app/assets/server/

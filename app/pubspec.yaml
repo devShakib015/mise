@@ -41,6 +41,7 @@ dependencies:
   intl: ^0.20.3
   file_picker: ^12.1.1
   http: ^1.6.0
+  path_provider: ^2.1.6
 
 dev_dependencies:
   flutter_test:
@@ -77,6 +78,13 @@ flutter:
           weight: 600
         - asset: assets/fonts/Inter-Bold.ttf
           weight: 700
+
+  assets:
+    # The server, staged by scripts/bundle_server.sh so a desktop build can run
+    # it itself. Not in git — the binary is fetched per platform at build time.
+    - assets/server/
+    - assets/server/pb_migrations/
+    - assets/server/pb_hooks/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

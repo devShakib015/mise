@@ -11,6 +11,7 @@ class Prefs {
   static const _kServerUrl = 'server_url';
   static const _kAuth = 'pb_auth';
   static const _kThemeMode = 'theme_mode';
+  static const _kHosting = 'hosting';
 
   String? get serverUrl {
     final v = _p.getString(_kServerUrl);
@@ -23,6 +24,11 @@ class Prefs {
   String? get authData => _p.getString(_kAuth);
   Future<void> setAuthData(String data) => _p.setString(_kAuth, data);
   Future<void> clearAuthData() => _p.remove(_kAuth);
+
+  /// True when this machine runs the server itself, so it can bring it back
+  /// up after a restart without anyone pressing anything.
+  bool get isHosting => _p.getBool(_kHosting) ?? false;
+  Future<void> setHosting(bool value) => _p.setBool(_kHosting, value);
 
   String? get themeMode => _p.getString(_kThemeMode);
   Future<void> setThemeMode(String mode) => _p.setString(_kThemeMode, mode);
