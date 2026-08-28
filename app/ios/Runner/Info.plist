@@ -66,5 +66,15 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<!-- The server runs on the restaurant's own LAN over plain HTTP. This
+		     permits cleartext to local addresses only; arbitrary internet HTTP
+		     stays blocked. -->
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Mise connects to the computer running your restaurant, on your own wi-fi. Nothing leaves the building.</string>
 </dict>
 </plist>
