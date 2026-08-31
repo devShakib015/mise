@@ -12,7 +12,8 @@ ROOT="$(pwd)"
 OUT="$ROOT/installer/out"
 APP_NAME="Mise"
 VERSION="$(grep -E '^version:' app/pubspec.yaml | head -1 | sed -E 's/version: *([^+]+).*/\1/' | tr -d ' ')"
-DMG="$OUT/${APP_NAME}-${VERSION}-macos.dmg"
+DMG="$OUT/${APP_NAME}.dmg"   # versionless on purpose: keeps
+                             # releases/latest/download working
 
 echo "==> Staging the server into the app"
 ./app/scripts/bundle_server.sh

@@ -93,3 +93,8 @@ before a shift began and settled during it belongs to that shift.
 
 Receipts print over TCP 9100 from the desktop and tablet builds. A browser
 cannot open a raw socket, so the web build says so rather than failing quietly.
+
+## Licence
+
+MIT. Use it, change it, run it in your restaurant, sell services around it —
+just keep the copyright notice. See [LICENSE](LICENSE).
