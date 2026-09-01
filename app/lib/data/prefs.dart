@@ -13,6 +13,7 @@ class Prefs {
   static const _kThemeMode = 'theme_mode';
   static const _kHosting = 'hosting';
   static const _kPending = 'pending_writes';
+  static const _kSection = 'manager_section';
 
   String? get serverUrl {
     final v = _p.getString(_kServerUrl);
@@ -35,6 +36,11 @@ class Prefs {
   /// so a tablet that is closed mid-outage does not lose a table's order.
   String? get pendingWrites => _p.getString(_kPending);
   Future<void> setPendingWrites(String json) => _p.setString(_kPending, json);
+
+  /// Where the manager was last looking. Reopening the back office should
+  /// return you to what you were doing, not to the top of the list.
+  String? get managerSection => _p.getString(_kSection);
+  Future<void> setManagerSection(String name) => _p.setString(_kSection, name);
 
   String? get themeMode => _p.getString(_kThemeMode);
   Future<void> setThemeMode(String mode) => _p.setString(_kThemeMode, mode);

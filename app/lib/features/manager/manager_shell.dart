@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_palette.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/theme/tokens.dart';
-import '../../core/util/ui_state.dart';
+import '../../data/prefs.dart';
 import 'floor/tables_page.dart';
 import 'activity/activity_page.dart';
 import 'reports/reports_page.dart';
@@ -32,7 +32,26 @@ enum ManagerSection {
 
 }
 
-final managerSectionProvider = uiValue<ManagerSection>(ManagerSection.items);
+/// Remembers where the manager was, so reopening the back office returns you
+/// to what you were doing.
+class ManagerSectionState extends Notifier<ManagerSection> {
+  @override
+  ManagerSection build() {
+    final saved = ref.read(prefsProvider).managerSection;
+    return ManagerSection.values.firstWhere(
+      (s) => s.name == saved,
+      orElse: () => ManagerSection.items,
+    );
+  }
+
+  void set(ManagerSection section) {
+    state = section;
+    ref.read(prefsProvider).setManagerSection(section.name);
+  }
+}
+
+final managerSectionProvider =
+    NotifierProvider<ManagerSectionState, ManagerSection>(ManagerSectionState.new);
 
 class ManagerShell extends ConsumerWidget {
   const ManagerShell({super.key});
