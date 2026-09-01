@@ -100,9 +100,16 @@ restaurant_cms/
 The server runs on one machine on the restaurant's LAN. Tablets and the kitchen
 screen join over that LAN. Discovery, in order of preference:
 
-1. mDNS/Bonjour auto-discovery
-2. QR code shown by the server machine
-3. Typing the IP address by hand
+1. **mDNS auto-discovery** ✅ — the host announces itself as `_mise._tcp`
+   carrying the venue name, and the connect screen lists what answers. Silent
+   when nothing does: an empty "looking…" box on a network that blocks
+   multicast is just noise above the field that actually works.
+2. **A QR code** ✅ in Settings → This device, showing the LAN address rather
+   than a loopback nobody else can reach. Tablets scan it from the connect
+   screen, where a camera exists to point.
+3. **Typing the address** ✅, which never goes away. Multicast is blocked on
+   plenty of networks and cameras get refused; a setup that only works when
+   everything cooperates is not a setup.
 
 ### Design system
 
