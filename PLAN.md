@@ -138,6 +138,12 @@ they are meant to.
 - **Totals are computed server-side.** A POS must never let a tampered client
   decide what a bill costs. Hooks recompute every total on write.
 - **Offline-tolerant.** Losing the network mid-service must not lose an order.
+  Adding to a bill keeps working and is queued to disk; the queue drains on its
+  own when the server answers again. Firing to the kitchen and settling a bill
+  deliberately do *not* work offline — the kitchen screen is the thing being
+  written to, and a total only the server computes cannot honestly be guessed
+  at on a tablet. Settling against a made-up number is how a restaurant loses
+  money.
 - **Realtime.** An order sent from the POS appears on the kitchen screen with no
   refresh, no polling.
 - **Premium UI.** This is the thing a restaurant stares at for twelve hours a day.

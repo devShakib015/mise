@@ -3,6 +3,8 @@ import 'package:pocketbase/pocketbase.dart';
 
 import '../live.dart';
 import '../models/audit.dart';
+import '../offline/connection.dart';
+import '../offline/pending_writes.dart';
 import '../models/menu.dart';
 import '../models/money.dart';
 import '../models/service.dart';
@@ -176,13 +178,14 @@ final closedOrderLinesProvider = StreamProvider.family<List<OrderLine>, DateRang
 );
 
 final serviceRepositoryProvider = Provider<ServiceRepository>(
-  (ref) => ServiceRepository(ref.watch(pbProvider)),
+  (ref) => ServiceRepository(ref.watch(pbProvider), ref),
 );
 
 class ServiceRepository {
-  const ServiceRepository(this._pb);
+  const ServiceRepository(this._pb, this._ref);
 
   final PocketBase _pb;
+  final Ref _ref;
 
   // ---------------------------------------------------------------- tables
 
@@ -267,9 +270,8 @@ class ServiceRepository {
     String note = '',
     int course = Course.mains,
   }) async {
-    await _pb.collection('order_items').create(body: {
+    final body = <String, dynamic>{
       'course': course,
-      'order': orderId,
       'menu_item': item.id,
       'name_snapshot': item.name,
       'qty': qty,
@@ -277,7 +279,26 @@ class ServiceRepository {
       'modifiers': modifiers.map((m) => m.toJson()).toList(),
       'note': note.trim(),
       'status': OrderItemStatus.queued.wire,
-    });
+    };
+
+    try {
+      await _pb.collection('order_items').create(body: {...body, 'order': orderId});
+      _ref.read(connectionProvider.notifier).reportSuccess();
+    } catch (err) {
+      // Only a write that never reached the server is worth keeping. One the
+      // server refused would replay its rejection forever.
+      if (!isNetworkFailure(err)) rethrow;
+
+      _ref.read(connectionProvider.notifier).reportFailure();
+      await _ref.read(pendingWritesProvider.notifier).add(PendingWrite(
+            id: 'pending-${DateTime.now().microsecondsSinceEpoch}',
+            kind: PendingKind.addLine,
+            orderId: orderId,
+            body: body,
+            at: DateTime.now(),
+            describe: '$qty × ${item.name}',
+          ));
+    }
   }
 
   Future<void> setLineQty(String lineId, int qty) =>

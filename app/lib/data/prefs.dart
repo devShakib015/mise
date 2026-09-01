@@ -12,6 +12,7 @@ class Prefs {
   static const _kAuth = 'pb_auth';
   static const _kThemeMode = 'theme_mode';
   static const _kHosting = 'hosting';
+  static const _kPending = 'pending_writes';
 
   String? get serverUrl {
     final v = _p.getString(_kServerUrl);
@@ -29,6 +30,11 @@ class Prefs {
   /// up after a restart without anyone pressing anything.
   bool get isHosting => _p.getBool(_kHosting) ?? false;
   Future<void> setHosting(bool value) => _p.setBool(_kHosting, value);
+
+  /// Writes that have not reached the server yet, as JSON. Kept on the device
+  /// so a tablet that is closed mid-outage does not lose a table's order.
+  String? get pendingWrites => _p.getString(_kPending);
+  Future<void> setPendingWrites(String json) => _p.setString(_kPending, json);
 
   String? get themeMode => _p.getString(_kThemeMode);
   Future<void> setThemeMode(String mode) => _p.setString(_kThemeMode, mode);

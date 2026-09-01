@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/tokens.dart';
 import '../../core/util/ui_state.dart';
+import '../../data/offline/pending_writes.dart';
 import 'floor_view.dart';
 import 'order_view.dart';
 
@@ -14,6 +15,10 @@ class PosShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Keeps the queue draining wherever a till is open, rather than depending
+    // on someone being on a particular screen when the wi-fi comes back.
+    ref.watch(queueFlusherProvider);
+
     final orderId = ref.watch(activeOrderIdProvider);
 
     return AnimatedSwitcher(

@@ -7,6 +7,8 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/app_field.dart';
 import '../../core/widgets/dialogs.dart';
 import '../../data/models/service.dart';
+import '../../data/offline/connection.dart';
+import '../../data/offline/pending_writes.dart';
 import '../../data/repositories/service_repository.dart';
 import '../../data/session.dart';
 import 'discount_dialog.dart';
@@ -30,7 +32,10 @@ class TicketPanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
     final lines = ref.watch(orderLinesProvider(order.id));
-    final live = lines.value ?? const <OrderLine>[];
+    final live = ref.watch(ticketLinesProvider(order.id));
+    final queued = ref.watch(pendingWritesProvider)
+        .where((w) => w.orderId == order.id).length;
+    final online = ref.watch(isOnlineProvider);
     final unsent = live.where((l) => !l.isVoid && !l.isSent).length;
     final waitingCourses = live
         .where((l) => !l.isVoid && !l.isSent)
@@ -56,7 +61,9 @@ class TicketPanel extends ConsumerWidget {
                   ),
           ),
           Divider(height: 1, color: p.border),
-          _Totals(order: order),
+          if (!online || queued > 0)
+            _OfflineNotice(queued: queued, online: online),
+          _Totals(order: order, provisional: queued > 0),
           Divider(height: 1, color: p.border),
           Padding(
             padding: const EdgeInsets.all(Space.sm),
@@ -69,9 +76,19 @@ class TicketPanel extends ConsumerWidget {
                     width: double.infinity,
                     height: Hit.button,
                     child: FilledButton.icon(
-                      onPressed: () => _send(context, ref),
-                      icon: const Icon(Icons.local_fire_department_rounded, size: 18),
-                      label: Text('Send $unsent to the kitchen'),
+                      // Firing needs the server: the kitchen screen is the
+                      // thing being written to, and there is no point pressing
+                      // a button that cannot reach it.
+                      onPressed: online ? () => _send(context, ref) : null,
+                      icon: Icon(
+                        online
+                            ? Icons.local_fire_department_rounded
+                            : Icons.cloud_off_rounded,
+                        size: 18,
+                      ),
+                      label: Text(online
+                          ? 'Send $unsent to the kitchen'
+                          : 'Cannot reach the kitchen'),
                     ),
                   ),
                   // Only offered when the waiting items actually span courses —
@@ -81,8 +98,9 @@ class TicketPanel extends ConsumerWidget {
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton(
-                        onPressed: () =>
-                            _send(context, ref, course: waitingCourses.first),
+                        onPressed: online
+                            ? () => _send(context, ref, course: waitingCourses.first)
+                            : null,
                         child: Text('Send ${Course.label(waitingCourses.first).toLowerCase()} only'),
                       ),
                     ),
@@ -96,7 +114,7 @@ class TicketPanel extends ConsumerWidget {
                       style: FilledButton.styleFrom(
                         backgroundColor: order.paid ? p.success : p.brand,
                       ),
-                      onPressed: live.isEmpty && !order.paid
+                      onPressed: (live.isEmpty && !order.paid) || queued > 0
                           ? null
                           : () => showPaymentSheet(context, order),
                       icon: Icon(
@@ -105,7 +123,11 @@ class TicketPanel extends ConsumerWidget {
                             : Icons.payments_outlined,
                         size: 18,
                       ),
-                      label: Text(order.paid ? 'Settled — receipt' : 'Settle bill'),
+                      label: Text(order.paid
+                          ? 'Settled — receipt'
+                          : queued > 0
+                              ? 'Waiting to sync'
+                              : 'Settle bill'),
                     ),
                   ),
                 const SizedBox(height: Space.xs),
@@ -240,6 +262,8 @@ class TicketPanel extends ConsumerWidget {
   Future<void> _lineActions(
       BuildContext context, WidgetRef ref, OrderLine line) async {
     if (line.isVoid) return;
+    // Nothing to edit yet — it exists only in the queue.
+    if (isProvisional(line)) return;
 
     await showDialog<void>(
       context: context,
@@ -301,6 +325,7 @@ class _LineRow extends ConsumerWidget {
     final symbol = ref.watch(currentRestaurantProvider)?.currencySymbol ?? '';
 
     final dimmed = line.isVoid;
+    final waiting = isProvisional(line);
     final nameColor = dimmed ? p.textTertiary : p.textPrimary;
 
     return InkWell(
@@ -318,16 +343,28 @@ class _LineRow extends ConsumerWidget {
               height: 26,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: line.isSent ? p.statusPreparing.withValues(alpha: 0.16) : null,
+                color: line.isSent
+                    ? p.statusPreparing.withValues(alpha: 0.16)
+                    : waiting
+                        ? p.warning.withValues(alpha: 0.16)
+                        : null,
                 borderRadius: Radii.small,
                 border: Border.all(
-                  color: line.isSent ? p.statusPreparing : p.borderStrong,
+                  color: line.isSent
+                      ? p.statusPreparing
+                      : waiting
+                          ? p.warning
+                          : p.borderStrong,
                 ),
               ),
               child: Text(
                 '${line.qty}',
                 style: AppType.caption.copyWith(
-                  color: line.isSent ? p.statusPreparing : p.textSecondary,
+                  color: line.isSent
+                      ? p.statusPreparing
+                      : waiting
+                          ? p.warning
+                          : p.textSecondary,
                 ),
               ),
             ),
@@ -359,6 +396,9 @@ class _LineRow extends ConsumerWidget {
                   if (dimmed)
                     Text('Voided',
                         style: AppType.caption.copyWith(color: p.danger)),
+                  if (waiting)
+                    Text('Saved here — not sent yet',
+                        style: AppType.caption.copyWith(color: p.warning)),
                 ],
               ),
             ),
@@ -378,9 +418,13 @@ class _LineRow extends ConsumerWidget {
 }
 
 class _Totals extends ConsumerWidget {
-  const _Totals({required this.order});
+  const _Totals({required this.order, this.provisional = false});
 
   final Order order;
+
+  /// True while writes are queued: the figures below are the server's last
+  /// word, not the current bill.
+  final bool provisional;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -424,6 +468,11 @@ class _Totals extends ConsumerWidget {
           const SizedBox(height: Space.xxs),
           Divider(height: Space.sm, color: p.border),
           row('Total', order.total, strong: true),
+          if (provisional)
+            Text(
+              'Not counting what is still to sync.',
+              style: AppType.small.copyWith(color: p.warning),
+            ),
         ],
       ),
     );
@@ -602,6 +651,52 @@ class _LineActionsDialogState extends ConsumerState<_LineActionsDialog> {
           enabled: !_busy,
         ),
       ],
+    );
+  }
+}
+
+
+/// Says plainly what is happening and what still works, rather than a bare
+/// error. A waiter mid-service needs to know they can keep taking the order.
+class _OfflineNotice extends ConsumerWidget {
+  const _OfflineNotice({required this.queued, required this.online});
+
+  final int queued;
+  final bool online;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final p = context.palette;
+    final tone = online ? p.info : p.warning;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+          horizontal: Space.sm, vertical: Space.xs),
+      color: tone.withValues(alpha: 0.12),
+      child: Row(
+        children: [
+          Icon(online ? Icons.sync_rounded : Icons.cloud_off_rounded,
+              size: 16, color: tone),
+          const SizedBox(width: Space.xs),
+          Expanded(
+            child: Text(
+              online
+                  ? (queued > 0 ? 'Catching up — $queued to send' : 'Back online')
+                  : queued > 0
+                      ? "Offline. $queued item${queued == 1 ? '' : 's'} saved here "
+                          'and will send when the server is back.'
+                      : 'Offline. You can keep taking the order.',
+              style: AppType.small.copyWith(color: p.textPrimary),
+            ),
+          ),
+          if (queued > 0)
+            TextButton(
+              onPressed: () => ref.read(pendingWritesProvider.notifier).flush(),
+              child: const Text('Retry'),
+            ),
+        ],
+      ),
     );
   }
 }
