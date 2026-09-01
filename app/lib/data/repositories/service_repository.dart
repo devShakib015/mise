@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 import '../live.dart';
+import '../models/audit.dart';
 import '../models/menu.dart';
 import '../models/money.dart';
 import '../models/service.dart';
@@ -93,6 +94,18 @@ final activeShiftProvider = StreamProvider<Shift?>((ref) {
     params: {'sid': staff.id},
   ).map((list) => list.isEmpty ? null : list.first);
 });
+
+/// What staff did, newest first. Manager-only by collection rule.
+final auditProvider = StreamProvider.family<List<AuditEntry>, DateRange>(
+  (ref, range) => liveCollection(
+    ref,
+    'audit_log',
+    AuditEntry.fromRecord,
+    sort: '-created',
+    filter: 'created >= {:from} && created < {:to}',
+    params: {'from': range.from.toUtc(), 'to': range.to.toUtc()},
+  ),
+);
 
 final printersProvider = StreamProvider<List<Printer>>(
   (ref) => liveCollection(ref, 'printers', Printer.fromRecord, sort: 'role,name'),
@@ -376,15 +389,47 @@ class ServiceRepository {
     });
   }
 
-  /// Moves a bill to a different table, freeing the one it came from.
-  Future<void> moveOrder({
+  /// Moves a bill to another table.
+  ///
+  /// If that table already has a bill open, the two are merged rather than
+  /// left as two bills on one table — which is what actually happens when a
+  /// party gets up and joins another. Returns the id of the bill that survives.
+  Future<String> moveOrder({
     required Order order,
     required String toTableId,
     required String staffId,
   }) async {
-    await _pb.collection('orders').update(order.id, body: {'table': toTableId});
+    final existing = await openOrderForTable(toTableId);
+    final merging = existing != null && existing.id != order.id;
+
+    if (merging) {
+      // Carry the lines across, then close the emptied bill. Lines keep their
+      // own snapshotted names and prices, so nothing is repriced by the move.
+      final lines = await _pb.collection('order_items').getFullList(
+            filter: _pb.filter('order = {:oid}', {'oid': order.id}),
+          );
+      for (final line in lines) {
+        await _pb.collection('order_items').update(line.id, body: {'order': existing.id});
+      }
+
+      final payments = await _pb.collection('payments').getFullList(
+            filter: _pb.filter('order = {:oid}', {'oid': order.id}),
+          );
+      for (final payment in payments) {
+        await _pb.collection('payments').update(payment.id, body: {'order': existing.id});
+      }
+
+      await _pb.collection('orders').update(order.id, body: {
+        'status': OrderStatus.cancelled.name,
+        'note': 'Merged into bill #${existing.number}',
+      });
+    } else {
+      await _pb.collection('orders').update(order.id, body: {'table': toTableId});
+    }
+
     await setTableStatus(toTableId, TableStatus.occupied);
 
+    // Free the table it left, unless someone else is still sitting there.
     if (order.tableId.isNotEmpty && order.tableId != toTableId) {
       final stillBusy = await openOrderForTable(order.tableId);
       if (stillBusy == null) {
@@ -392,11 +437,17 @@ class ServiceRepository {
       }
     }
 
-    await _audit(staffId, 'move_order', 'orders', order.id, {
+    await _audit(staffId, merging ? 'merge_order' : 'move_order', 'orders',
+        order.id, {
       'from': order.tableId,
       'to': toTableId,
+      'number': order.number,
+      if (merging) 'into': existing.number,
     });
+
+    return merging ? existing.id : order.id;
   }
+
 
   // -------------------------------------------------------------- payments
 

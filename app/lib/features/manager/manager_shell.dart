@@ -6,6 +6,7 @@ import '../../core/theme/app_typography.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/util/ui_state.dart';
 import 'floor/tables_page.dart';
+import 'activity/activity_page.dart';
 import 'reports/reports_page.dart';
 import 'menu/categories_page.dart';
 import 'people/staff_page.dart';
@@ -20,6 +21,7 @@ enum ManagerSection {
   tables('Tables', Icons.table_restaurant_outlined, 'Floor'),
   staff('Staff', Icons.badge_outlined, 'Floor'),
   reports('Reports', Icons.insights_rounded, 'Business'),
+  activity('Activity', Icons.history_rounded, 'Business'),
   settings('Settings', Icons.settings_outlined, 'Business');
 
   const ManagerSection(this.label, this.icon, this.group);
@@ -65,6 +67,7 @@ class ManagerShell extends ConsumerWidget {
                 ManagerSection.tables => const TablesPage(),
                 ManagerSection.staff => const StaffPage(),
                 ManagerSection.reports => const ReportsPage(),
+                ManagerSection.activity => const ActivityPage(),
                 ManagerSection.settings => const SettingsPage(),
               },
             ),

@@ -10,6 +10,7 @@ import '../../data/models/service.dart';
 import '../../data/repositories/service_repository.dart';
 import '../../data/session.dart';
 import 'discount_dialog.dart';
+import 'move_table_dialog.dart';
 import 'payment_sheet.dart';
 import 'pos_shell.dart';
 
@@ -103,6 +104,15 @@ class TicketPanel extends ConsumerWidget {
                         tooltip: 'Settle bill',
                         onPressed: () => showPaymentSheet(context, order),
                         icon: Icon(Icons.payments_outlined,
+                            size: 20, color: p.textSecondary),
+                      ),
+                    if (order.tableId.isNotEmpty)
+                      IconButton(
+                        tooltip: 'Move or merge this bill',
+                        onPressed: order.paid
+                            ? null
+                            : () => showMoveTableDialog(context, order),
+                        icon: Icon(Icons.swap_horiz_rounded,
                             size: 20, color: p.textSecondary),
                       ),
                     IconButton(

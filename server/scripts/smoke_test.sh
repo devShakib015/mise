@@ -103,6 +103,23 @@ check "subtotal after void" "0" "$(echo "$R" | jq -r .subtotal)"
 check "total after void" "0" "$(echo "$R" | jq -r .total)"
 
 echo
+echo "Moving a line between bills repoints both totals"
+# What a merge does underneath: lines change parent, and the money hooks have
+# to recompute the bill they left as well as the one they joined.
+A=$(post orders "{\"type\":\"takeaway\",\"staff\":\"${STAFF}\",\"status\":\"open\"}" | jq -r .id)
+B=$(post orders "{\"type\":\"takeaway\",\"staff\":\"${STAFF}\",\"status\":\"open\"}" | jq -r .id)
+MOVED=$(post order_items "{\"order\":\"${A}\",\"menu_item\":\"${ITEM}\",\"name_snapshot\":\"Steak\",
+  \"qty\":1,\"unit_price\":100,\"status\":\"queued\"}" | jq -r .id)
+check "source bill has it" "100" "$(get orders "$A" | jq -r .subtotal)"
+check "target bill is empty" "0" "$(get orders "$B" | jq -r .subtotal)"
+
+curl -sf -X PATCH "${API}/collections/order_items/records/${MOVED}" \
+  -H "Authorization: ${TOKEN}" -H 'Content-Type: application/json' \
+  -d "{\"order\":\"${B}\"}" >/dev/null
+check "source drops to nothing" "0" "$(get orders "$A" | jq -r .subtotal)"
+check "target picks it up" "100" "$(get orders "$B" | jq -r .subtotal)"
+
+echo
 echo "Closing the order frees the table"
 curl -sf -X PATCH "${API}/collections/orders/records/${ORDER}" \
   -H "Authorization: ${TOKEN}" -H 'Content-Type: application/json' \

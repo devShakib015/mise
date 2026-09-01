@@ -12,10 +12,32 @@ onRecordCreate((e) => {
   e.next();
 }, "order_items");
 
+// A line can change parent — that is what merging two bills does. Code before
+// e.next() runs pre-save and code after runs post-save, so this one hook can
+// note which bill the line is leaving and then recompute *both*. Recomputing
+// only the new parent would leave the old bill showing a total it no longer has.
 onRecordUpdate((e) => {
   const money = require(`${__hooks}/lib_money.js`);
+
+  let leaving = "";
+  try {
+    leaving = e.app.findRecordById("order_items", e.record.id).getString("order");
+  } catch (err) { /* new enough that there is no stored row yet */ }
+
   money.applyLineTotals(e.record);
+
   e.next();
+
+  const joined = e.record.getString("order");
+  money.recomputeOrder(e.app, joined);
+
+  const kitchen = require(`${__hooks}/lib_kitchen.js`);
+  kitchen.deriveOrderStatus(e.app, joined);
+
+  if (leaving && leaving !== joined) {
+    money.recomputeOrder(e.app, leaving);
+    kitchen.deriveOrderStatus(e.app, leaving);
+  }
 }, "order_items");
 
 // Any change to a line rolls up into the parent order: its money, and — for
@@ -37,8 +59,9 @@ const rollUpLine = (e) => {
 };
 
 onRecordAfterCreateSuccess(rollUpLine, "order_items");
-onRecordAfterUpdateSuccess(rollUpLine, "order_items");
 onRecordAfterDeleteSuccess(rollUpLine, "order_items");
+// No after-update hook for order_items: onRecordUpdate above already handles
+// both sides of a reparent, and running this too would double the work.
 onRecordAfterCreateSuccess(rollUp, "payments");
 onRecordAfterUpdateSuccess(rollUp, "payments");
 onRecordAfterDeleteSuccess(rollUp, "payments");
