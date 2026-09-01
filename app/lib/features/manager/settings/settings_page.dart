@@ -13,6 +13,8 @@ import '../../../core/widgets/search_picker.dart';
 import '../../../data/models/restaurant.dart';
 import '../../../data/session.dart';
 import '../../setup/currencies.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+
 import 'printers_section.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
@@ -313,8 +315,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 children: [
                   _InfoRow(
                     label: 'Server',
-                    value: ref.read(sessionProvider.notifier).pb.baseURL,
+                    value: _pairingUrl(ref),
                   ),
+                  const SizedBox(height: Space.md),
+                  _PairingCode(url: _pairingUrl(ref)),
                   const SizedBox(height: Space.md),
                   Row(
                     children: [
@@ -344,6 +348,77 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     ],
                   ),
                 ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// The address other devices should join.
+///
+/// When this machine is hosting, its own URL is a loopback that means nothing
+/// to a tablet — the LAN address is the one worth showing.
+String _pairingUrl(WidgetRef ref) {
+  final hosted = ref.read(sessionProvider.notifier).hostedServer;
+  if (hosted != null) return hosted.lanUrl;
+  return ref.read(sessionProvider.notifier).pb.baseURL;
+}
+
+/// The address as something a tablet's camera can read, so nobody types an IP.
+class _PairingCode extends StatelessWidget {
+  const _PairingCode({required this.url});
+
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final loopback = url.contains('127.0.0.1') || url.contains('localhost');
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Always on white: a dark-themed code defeats half of phone cameras.
+        Container(
+          padding: const EdgeInsets.all(Space.xs),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: Radii.medium,
+            border: Border.all(color: p.border),
+          ),
+          child: QrImageView(
+            data: url,
+            version: QrVersions.auto,
+            size: 104,
+            padding: EdgeInsets.zero,
+            backgroundColor: Colors.white,
+            eyeStyle: const QrEyeStyle(
+              eyeShape: QrEyeShape.square, color: Color(0xFF0C0A09)),
+            dataModuleStyle: const QrDataModuleStyle(
+              dataModuleShape: QrDataModuleShape.square, color: Color(0xFF0C0A09)),
+          ),
+        ),
+        const SizedBox(width: Space.md),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Add a tablet',
+                  style: AppType.bodyStrong.copyWith(color: p.textPrimary)),
+              const SizedBox(height: 2),
+              Text(
+                loopback
+                    ? 'This device is connected over a loopback address, which '
+                        'only works here. Open Mise on the machine hosting the '
+                        'restaurant to get a code others can use.'
+                    : 'On the new device, open Mise and tap the scan button '
+                        'beside the address field.',
+                style: AppType.small.copyWith(
+                  color: loopback ? p.warning : p.textSecondary,
+                ),
               ),
             ],
           ),

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketbase/pocketbase.dart';
 
+import '../core/discovery/discovery.dart';
 import '../core/server/server_host.dart';
 import 'models/restaurant.dart';
 import 'models/staff.dart';
@@ -71,6 +72,7 @@ class SessionController extends Notifier<SessionState> {
       if (result.ok) {
         _hosted = result.server;
         await _attach(result.server!.url, remember: true);
+        await _announce();
         return;
       }
       state = SessionNeedsServer(error: result.error, lastUrl: _prefs.serverUrl);
@@ -158,7 +160,23 @@ class SessionController extends Notifier<SessionState> {
 
     _hosted = result.server;
     await _prefs.setHosting(true);
-    return _attach(result.server!.url, remember: true);
+    final error = await _attach(result.server!.url, remember: true);
+    await _announce();
+    return error;
+  }
+
+  /// Puts this machine on the network by name, so tablets do not have to be
+  /// told an address. Best effort — plenty of networks block multicast, and
+  /// typing the address still works.
+  Future<void> _announce() async {
+    if (!Discovery.isSupported || _hosted == null) return;
+    final port = Uri.tryParse(_hosted!.url)?.port ?? 8090;
+    final venue = switch (state) {
+      SessionReady(:final restaurant) => restaurant.name,
+      SessionNeedsAuth(:final venueName) => venueName,
+      _ => '',
+    };
+    await Discovery.advertise(venueName: venue, port: port);
   }
 
   /// Set once this device is hosting, so the setup screens can read out the
@@ -299,6 +317,7 @@ class SessionController extends Notifier<SessionState> {
     await _prefs.clearAuthData();
     await _prefs.clearServerUrl();
     await _prefs.setHosting(false);
+    await Discovery.stopAdvertising();
     await ServerHost.stop();
     _pb = null;
     _hosted = null;

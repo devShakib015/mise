@@ -35,5 +35,7 @@
 	</dict>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Mise connects to the computer running your restaurant, on your own wi-fi. Nothing leaves the building.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Mise uses the camera once, to read the code that points this device at your restaurant's computer.</string>
 </dict>
 </plist>

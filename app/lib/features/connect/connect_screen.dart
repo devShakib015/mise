@@ -7,7 +7,9 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/app_field.dart';
 import '../../core/widgets/centered_panel.dart';
 import '../../core/widgets/message_banner.dart';
+import '../../core/discovery/discovery.dart';
 import '../../core/server/server_host.dart';
+import 'scan_to_connect.dart';
 import '../../data/session.dart';
 
 /// Points this device at the machine running the server.
@@ -92,6 +94,17 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
           ),
           const SizedBox(height: Space.xl),
 
+          if (Discovery.isSupported) ...[
+            _FoundServers(
+              busy: _busy,
+              onPick: (server) {
+                _controller.text = server.url;
+                _connect();
+              },
+            ),
+            const SizedBox(height: Space.md),
+          ],
+
           AppField(
             label: 'Server address',
             controller: _controller,
@@ -103,6 +116,21 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
             onSubmitted: (_) => _connect(),
             helper: 'Running the server on this computer? Leave this as it is.',
             prefix: Icon(Icons.dns_outlined, size: 18, color: p.textTertiary),
+            suffix: canScanToConnect
+                ? IconButton(
+                    tooltip: 'Scan the code',
+                    onPressed: _busy
+                        ? null
+                        : () async {
+                            final scanned = await scanToConnect(context);
+                            if (scanned == null || !mounted) return;
+                            _controller.text = scanned;
+                            _connect();
+                          },
+                    icon: Icon(Icons.qr_code_scanner_rounded,
+                        size: 20, color: p.brand),
+                  )
+                : null,
           ),
 
           if (_error != null) ...[
@@ -154,6 +182,99 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
           ],
         ],
       ),
+    );
+  }
+}
+
+
+/// Restaurants announcing themselves on this network.
+///
+/// Shown above the address field rather than replacing it: mDNS is blocked on
+/// plenty of networks, and a setup screen that only works when the network
+/// cooperates is not a setup screen.
+class _FoundServers extends StatefulWidget {
+  const _FoundServers({required this.busy, required this.onPick});
+
+  final bool busy;
+  final ValueChanged<FoundServer> onPick;
+
+  @override
+  State<_FoundServers> createState() => _FoundServersState();
+}
+
+class _FoundServersState extends State<_FoundServers> {
+  late final Stream<List<FoundServer>> _stream = Discovery.search();
+
+  @override
+  void dispose() {
+    Discovery.stopSearching();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+
+    return StreamBuilder<List<FoundServer>>(
+      stream: _stream,
+      builder: (context, snapshot) {
+        final found = snapshot.data ?? const <FoundServer>[];
+        if (found.isEmpty) {
+          // Silent while nothing has answered. An empty "looking…" box on a
+          // network that blocks multicast is just noise above the field that
+          // actually works.
+          return const SizedBox.shrink();
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('On this network',
+                style: AppType.label.copyWith(color: p.textSecondary)),
+            const SizedBox(height: Space.xs),
+            for (final s in found)
+              Padding(
+                padding: const EdgeInsets.only(bottom: Space.xs),
+                child: Material(
+                  color: p.surfaceSunken,
+                  borderRadius: Radii.medium,
+                  child: InkWell(
+                    borderRadius: Radii.medium,
+                    onTap: widget.busy ? null : () => widget.onPick(s),
+                    child: Container(
+                      padding: const EdgeInsets.all(Space.sm),
+                      decoration: BoxDecoration(
+                        borderRadius: Radii.medium,
+                        border: Border.all(color: p.border),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.dns_rounded, size: 18, color: p.brand),
+                          const SizedBox(width: Space.sm),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(s.name,
+                                    style: AppType.bodyStrong
+                                        .copyWith(color: p.textPrimary)),
+                                Text('${s.host}:${s.port}',
+                                    style: AppType.small
+                                        .copyWith(color: p.textTertiary)),
+                              ],
+                            ),
+                          ),
+                          Icon(Icons.chevron_right_rounded,
+                              size: 20, color: p.textTertiary),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }

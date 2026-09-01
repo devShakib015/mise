@@ -12,6 +12,8 @@
 	     The trade is App Store distribution, which was never on the table: the
 	     store does not allow a bundled server binary either. Mise ships as a
 	     signed DMG from the project's own site. -->
+	<key>com.apple.security.device.camera</key>
+	<true/>
 	<key>com.apple.security.network.client</key>
 	<true/>
 	<key>com.apple.security.network.server</key>
