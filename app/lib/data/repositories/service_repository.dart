@@ -265,8 +265,10 @@ class ServiceRepository {
     required int qty,
     List<SelectedModifier> modifiers = const [],
     String note = '',
+    int course = Course.mains,
   }) async {
     await _pb.collection('order_items').create(body: {
+      'course': course,
       'order': orderId,
       'menu_item': item.id,
       'name_snapshot': item.name,
@@ -280,6 +282,9 @@ class ServiceRepository {
 
   Future<void> setLineQty(String lineId, int qty) =>
       _pb.collection('order_items').update(lineId, body: {'qty': qty});
+
+  Future<void> setLineCourse(String lineId, int course) =>
+      _pb.collection('order_items').update(lineId, body: {'course': course});
 
   Future<void> setLineNote(String lineId, String note) =>
       _pb.collection('order_items').update(lineId, body: {'note': note.trim()});
@@ -320,12 +325,18 @@ class ServiceRepository {
   Future<List<OrderLine>> sendToKitchen({
     required String orderId,
     required String staffId,
+    int? onlyCourse,
   }) async {
     final pending = await _pb.collection('order_items').getFullList(
-          filter: _pb.filter(
-            "order = {:oid} && status != 'void' && sent_at = null",
-            {'oid': orderId},
-          ),
+          filter: onlyCourse == null
+              ? _pb.filter(
+                  "order = {:oid} && status != 'void' && sent_at = null",
+                  {'oid': orderId},
+                )
+              : _pb.filter(
+                  "order = {:oid} && status != 'void' && sent_at = null && course = {:c}",
+                  {'oid': orderId, 'c': onlyCourse},
+                ),
         );
 
     if (pending.isEmpty) return const [];
@@ -341,6 +352,7 @@ class ServiceRepository {
 
     await _audit(staffId, 'send_to_kitchen', 'orders', orderId, {
       'lines': pending.length,
+      'course': ?onlyCourse,
     });
 
     // Re-read so the returned lines carry the sent_at that was just written.

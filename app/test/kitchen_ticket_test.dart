@@ -102,6 +102,33 @@ void main() {
     expect(_has(bytes, [0x1D, 0x21, 0x11]), isTrue, reason: 'double-size header');
   });
 
+  test('labels the courses when a ticket spans more than one', () {
+    final out = build(lines: [
+      OrderLine(
+        id: 'l2', orderId: 'o1', name: 'Steak', qty: 1, unitPrice: 100,
+        modifiers: const [], modifiersTotal: 0, lineTotal: 100,
+        status: OrderItemStatus.queued, course: Course.mains,
+      ),
+      OrderLine(
+        id: 'l3', orderId: 'o1', name: 'Bruschetta', qty: 1, unitPrice: 50,
+        modifiers: const [], modifiersTotal: 0, lineTotal: 50,
+        status: OrderItemStatus.queued, course: Course.starters,
+      ),
+    ]).text();
+
+    expect(out, contains('STARTERS'));
+    expect(out, contains('MAINS'));
+    // Starters lead, because that is the order they are made in.
+    expect(out.indexOf('STARTERS'), lessThan(out.indexOf('MAINS')));
+    expect(out.indexOf('BRUSCHETTA'), lessThan(out.indexOf('STEAK')));
+  });
+
+  test('stays quiet about courses when there is only one', () {
+    final out = build().text();
+    expect(out, isNot(contains('MAINS')));
+    expect(out, isNot(contains('STARTERS')));
+  });
+
   test('emits only bytes a code-page printer can render', () {
     final out = build(lines: [line(name: 'Café ৳ special', note: 'naïve')]).escPos();
     expect(out.where((b) => b >= 0x20).every((b) => b < 0x80), isTrue);

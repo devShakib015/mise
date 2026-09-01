@@ -221,6 +221,23 @@ enum OrderItemStatus {
       };
 }
 
+/// Which course a line belongs to. A kitchen fires starters, then mains, so a
+/// table is not handed everything at once.
+abstract final class Course {
+  static const starters = 1;
+  static const mains = 2;
+  static const desserts = 3;
+
+  static const all = [starters, mains, desserts];
+
+  static String label(int c) => switch (c) {
+        starters => 'Starters',
+        mains => 'Mains',
+        desserts => 'Desserts',
+        _ => 'Course $c',
+      };
+}
+
 class OrderLine {
   const OrderLine({
     required this.id,
@@ -235,6 +252,7 @@ class OrderLine {
     this.menuItemId = '',
     this.note = '',
     this.sentAt,
+    this.course = Course.mains,
   });
 
   final String id;
@@ -249,6 +267,10 @@ class OrderLine {
   final String menuItemId;
   final String note;
   final DateTime? sentAt;
+
+  /// Defaults to mains, so a restaurant that never courses anything never has
+  /// to think about it.
+  final int course;
 
   bool get isVoid => status == OrderItemStatus.void_;
 
@@ -282,6 +304,7 @@ class OrderLine {
       menuItemId: r.getStringValue('menu_item'),
       note: r.getStringValue('note'),
       sentAt: sent.isEmpty ? null : DateTime.tryParse(sent)?.toLocal(),
+      course: r.getIntValue('course') == 0 ? Course.mains : r.getIntValue('course'),
     );
   }
 }

@@ -79,7 +79,15 @@ class KitchenTicket {
     if (staffName.isNotEmpty) out.add(staffName);
     out.add('=' * _cols);
 
-    for (final line in lines) {
+    final courses = lines.where((l) => !l.isVoid).map((l) => l.course).toSet().toList()
+      ..sort();
+    final grouped = courses.length > 1;
+
+    for (final course in courses) {
+      if (grouped) {
+        out.add(Course.label(course).toUpperCase());
+      }
+      for (final line in lines.where((l) => l.course == course)) {
       if (line.isVoid) continue;
       // Wrapped, not truncated: a dish whose name runs long still has to be
       // readable, and cutting it off is how the wrong thing gets cooked.
@@ -92,6 +100,7 @@ class KitchenTicket {
         out.addAll(_wrap('** ${line.note.toUpperCase()} **', indent: '   '));
       }
       out.add('');
+      }
     }
 
     out.add('-' * _cols);

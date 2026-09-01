@@ -32,6 +32,12 @@ class TicketPanel extends ConsumerWidget {
     final lines = ref.watch(orderLinesProvider(order.id));
     final live = lines.value ?? const <OrderLine>[];
     final unsent = live.where((l) => !l.isVoid && !l.isSent).length;
+    final waitingCourses = live
+        .where((l) => !l.isVoid && !l.isSent)
+        .map((l) => l.course)
+        .toSet()
+        .toList()
+      ..sort();
 
     return Container(
       color: p.surface,
@@ -58,7 +64,7 @@ class TicketPanel extends ConsumerWidget {
               children: [
                 // Whatever is next gets the big button: fire the food while
                 // there is food to fire, then take the money.
-                if (unsent > 0)
+                if (unsent > 0) ...[
                   SizedBox(
                     width: double.infinity,
                     height: Hit.button,
@@ -67,7 +73,21 @@ class TicketPanel extends ConsumerWidget {
                       icon: const Icon(Icons.local_fire_department_rounded, size: 18),
                       label: Text('Send $unsent to the kitchen'),
                     ),
-                  )
+                  ),
+                  // Only offered when the waiting items actually span courses —
+                  // a table ordering one round should not be asked to choose.
+                  if (waitingCourses.length > 1) ...[
+                    const SizedBox(height: Space.xs),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: () =>
+                            _send(context, ref, course: waitingCourses.first),
+                        child: Text('Send ${Course.label(waitingCourses.first).toLowerCase()} only'),
+                      ),
+                    ),
+                  ],
+                ]
                 else
                   SizedBox(
                     width: double.infinity,
@@ -154,7 +174,7 @@ class TicketPanel extends ConsumerWidget {
     );
   }
 
-  Future<void> _send(BuildContext context, WidgetRef ref) async {
+  Future<void> _send(BuildContext context, WidgetRef ref, {int? course}) async {
     final staff = ref.read(currentStaffProvider);
     if (staff == null) return;
 
@@ -162,6 +182,7 @@ class TicketPanel extends ConsumerWidget {
       final sent = await ref.read(serviceRepositoryProvider).sendToKitchen(
             orderId: order.id,
             staffId: staff.id,
+            onlyCourse: course,
           );
       if (!context.mounted) return;
 
@@ -420,6 +441,7 @@ class _LineActionsDialog extends ConsumerStatefulWidget {
 
 class _LineActionsDialogState extends ConsumerState<_LineActionsDialog> {
   late int _qty = widget.line.qty;
+  late int _course = widget.line.course;
   late final _note = TextEditingController(text: widget.line.note);
   bool _busy = false;
   String? _error;
@@ -442,6 +464,9 @@ class _LineActionsDialogState extends ConsumerState<_LineActionsDialog> {
       }
       if (_note.text.trim() != widget.line.note) {
         await repo.setLineNote(widget.line.id, _note.text);
+      }
+      if (_course != widget.line.course) {
+        await repo.setLineCourse(widget.line.id, _course);
       }
       if (mounted) Navigator.of(context).pop();
     } catch (err) {
@@ -528,6 +553,40 @@ class _LineActionsDialogState extends ConsumerState<_LineActionsDialog> {
                             color: n == _qty ? p.onBrand : p.textPrimary,
                           ),
                         ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: Space.lg),
+        Text('Course', style: AppType.label.copyWith(color: p.textSecondary)),
+        const SizedBox(height: Space.xs),
+        Row(
+          children: [
+            for (final c in Course.all)
+              Padding(
+                padding: const EdgeInsets.only(right: Space.xs),
+                child: Material(
+                  color: c == _course ? p.brandSubtle : p.surfaceSunken,
+                  borderRadius: Radii.small,
+                  child: InkWell(
+                    borderRadius: Radii.small,
+                    onTap: _busy ? null : () => setState(() => _course = c),
+                    child: Container(
+                      height: 40,
+                      padding: const EdgeInsets.symmetric(horizontal: Space.sm),
+                      decoration: BoxDecoration(
+                        borderRadius: Radii.small,
+                        border: Border.all(color: c == _course ? p.brand : p.border),
+                      ),
+                      child: Center(
+                        widthFactor: 1,
+                        child: Text(Course.label(c),
+                            style: AppType.small.copyWith(
+                              color: c == _course ? p.brand : p.textPrimary,
+                            )),
                       ),
                     ),
                   ),

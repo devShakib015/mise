@@ -197,13 +197,7 @@ class _TicketCard extends ConsumerWidget {
               ],
             ),
           ),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: Space.xxs),
-              itemCount: ticket.lines.length,
-              itemBuilder: (context, i) => _TicketLine(line: ticket.lines[i]),
-            ),
-          ),
+          Expanded(child: _TicketBody(ticket: ticket)),
           Padding(
             padding: const EdgeInsets.all(Space.xs),
             child: SizedBox(
@@ -239,6 +233,44 @@ class _TicketCard extends ConsumerWidget {
             .showSnackBar(SnackBar(content: Text('Could not update: $err')));
       }
     }
+  }
+}
+
+/// A ticket's items, grouped by course when it spans more than one so the
+/// pass can see what to plate together.
+class _TicketBody extends StatelessWidget {
+  const _TicketBody({required this.ticket});
+
+  final _Ticket ticket;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+
+    final courses = ticket.lines.map((l) => l.course).toSet().toList()..sort();
+
+    if (courses.length < 2) {
+      return ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: Space.xxs),
+        itemCount: ticket.lines.length,
+        itemBuilder: (context, i) => _TicketLine(line: ticket.lines[i]),
+      );
+    }
+
+    return ListView(
+      padding: const EdgeInsets.symmetric(vertical: Space.xxs),
+      children: [
+        for (final c in courses) ...[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(Space.sm, Space.xs, Space.sm, 2),
+            child: Text(Course.label(c).toUpperCase(),
+                style: AppType.overline.copyWith(color: p.textTertiary)),
+          ),
+          for (final l in ticket.lines.where((l) => l.course == c))
+            _TicketLine(line: l),
+        ],
+      ],
+    );
   }
 }
 
