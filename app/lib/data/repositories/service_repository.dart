@@ -315,8 +315,9 @@ class ServiceRepository {
 
   /// Sends everything not yet sent to the kitchen, and moves the bill on.
   ///
-  /// Returns how many lines went. Zero means there was nothing new to send.
-  Future<int> sendToKitchen({
+  /// Returns the lines that went, so the caller can put them on a docket.
+  /// Empty means there was nothing new to send.
+  Future<List<OrderLine>> sendToKitchen({
     required String orderId,
     required String staffId,
   }) async {
@@ -327,7 +328,7 @@ class ServiceRepository {
           ),
         );
 
-    if (pending.isEmpty) return 0;
+    if (pending.isEmpty) return const [];
 
     final now = DateTime.now().toUtc().toIso8601String();
     for (final line in pending) {
@@ -342,7 +343,14 @@ class ServiceRepository {
       'lines': pending.length,
     });
 
-    return pending.length;
+    // Re-read so the returned lines carry the sent_at that was just written.
+    return _pb
+        .collection('order_items')
+        .getFullList(filter: _pb.filter('order = {:oid}', {'oid': orderId}))
+        .then((all) => all
+            .where((r) => pending.any((p) => p.id == r.id))
+            .map(OrderLine.fromRecord)
+            .toList());
   }
 
   // -------------------------------------------------------------- kitchen
@@ -448,6 +456,42 @@ class ServiceRepository {
     return merging ? existing.id : order.id;
   }
 
+
+  /// Peels chosen lines off onto a second bill on the same table.
+  ///
+  /// For a table paying separately: each party ends up with their own bill,
+  /// its own total and its own receipt, rather than one person guessing at a
+  /// share. Lines carry their snapshotted prices, so nothing is repriced.
+  Future<String> splitOrder({
+    required Order order,
+    required List<String> lineIds,
+    required String staffId,
+  }) async {
+    if (lineIds.isEmpty) {
+      throw ArgumentError('Choose at least one item to move.');
+    }
+
+    final fresh = await _pb.collection('orders').create(body: {
+      'type': order.type.wire,
+      'status': OrderStatus.open.name,
+      'staff': staffId,
+      if (order.tableId.isNotEmpty) 'table': order.tableId,
+      'guest_count': 0,
+      'note': 'Split from bill #${order.number}',
+    });
+
+    for (final id in lineIds) {
+      await _pb.collection('order_items').update(id, body: {'order': fresh.id});
+    }
+
+    await _audit(staffId, 'split_order', 'orders', order.id, {
+      'number': order.number,
+      'into': fresh.getStringValue('number'),
+      'lines': lineIds.length,
+    });
+
+    return fresh.id;
+  }
 
   // -------------------------------------------------------------- payments
 

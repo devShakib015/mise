@@ -30,6 +30,7 @@ class AuditEntry {
         'send_to_kitchen' => 'Sent to the kitchen',
         'move_order' => 'Moved a bill',
         'merge_order' => 'Merged two bills',
+        'split_order' => 'Split a bill',
         'close_shift' => 'Closed a shift',
         'reset_pin' => 'Reset a PIN',
         _ => action.replaceAll('_', ' '),

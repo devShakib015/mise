@@ -1,5 +1,17 @@
 import 'package:pocketbase/pocketbase.dart';
 
+/// Which station makes the things in a category. Dockets are routed by this,
+/// so the bar prints drinks and the kitchen prints food.
+enum Station {
+  kitchen,
+  bar;
+
+  static Station parse(String raw) =>
+      raw == 'bar' ? Station.bar : Station.kitchen;
+
+  String get label => this == Station.bar ? 'Bar' : 'Kitchen';
+}
+
 /// A section of the menu. Categories drive the top-level tabs on the POS grid,
 /// so their order matters more than it looks.
 class Category {
@@ -8,6 +20,7 @@ class Category {
     required this.name,
     required this.sortOrder,
     required this.active,
+    this.station = Station.kitchen,
     this.color = '',
     this.image = '',
   });
@@ -16,6 +29,9 @@ class Category {
   final String name;
   final int sortOrder;
   final bool active;
+
+  /// Where its dockets print.
+  final Station station;
   final String color;
   final String image;
 
@@ -24,6 +40,7 @@ class Category {
         name: r.getStringValue('name'),
         sortOrder: r.getIntValue('sort_order'),
         active: r.getBoolValue('active'),
+        station: Station.parse(r.getStringValue('station')),
         color: r.getStringValue('color'),
         image: r.getStringValue('image'),
       );

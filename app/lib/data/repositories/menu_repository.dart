@@ -89,6 +89,7 @@ class MenuRepository {
     required String name,
     required int sortOrder,
     required bool active,
+    Station station = Station.kitchen,
     String color = '',
     ImageUpload? image,
     bool clearImage = false,
@@ -97,6 +98,7 @@ class MenuRepository {
       'name': name.trim(),
       'sort_order': sortOrder,
       'active': active,
+      'station': station.name,
       'color': color,
       if (clearImage) 'image': null,
     };

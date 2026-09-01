@@ -11,6 +11,8 @@ import '../../data/repositories/service_repository.dart';
 import '../../data/session.dart';
 import 'discount_dialog.dart';
 import 'move_table_dialog.dart';
+import 'docket_printing.dart';
+import 'split_bill_dialog.dart';
 import 'payment_sheet.dart';
 import 'pos_shell.dart';
 
@@ -106,6 +108,14 @@ class TicketPanel extends ConsumerWidget {
                         icon: Icon(Icons.payments_outlined,
                             size: 20, color: p.textSecondary),
                       ),
+                    IconButton(
+                      tooltip: 'Split this bill',
+                      onPressed: (order.paid || live.isEmpty)
+                          ? null
+                          : () => showSplitDialog(context, order),
+                      icon: Icon(Icons.call_split_rounded,
+                          size: 20, color: p.textSecondary),
+                    ),
                     if (order.tableId.isNotEmpty)
                       IconButton(
                         tooltip: 'Move or merge this bill',
@@ -155,11 +165,18 @@ class TicketPanel extends ConsumerWidget {
           );
       if (!context.mounted) return;
 
+      // The dockets are a side effect of sending, not a second thing to press.
+      final printed = await printDockets(ref, order: order, lines: sent);
+      if (!context.mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(sent == 1
-              ? '1 item sent to the kitchen'
-              : '$sent items sent to the kitchen'),
+          content: Text([
+            sent.length == 1
+                ? '1 item sent to the kitchen'
+                : '${sent.length} items sent to the kitchen',
+            if (printed.isNotEmpty) printed,
+          ].join(' · ')),
         ),
       );
     } catch (err) {

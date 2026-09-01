@@ -232,6 +232,7 @@ class _CategoryDialogState extends ConsumerState<_CategoryDialog> {
   late final _name = TextEditingController(text: widget.existing?.name ?? '');
   late String _color = widget.existing?.color ?? '';
   late bool _active = widget.existing?.active ?? true;
+  late Station _station = widget.existing?.station ?? Station.kitchen;
 
   bool _busy = false;
   String? _error;
@@ -260,6 +261,7 @@ class _CategoryDialogState extends ConsumerState<_CategoryDialog> {
             name: _name.text,
             color: _color,
             active: _active,
+            station: _station,
             sortOrder: widget.existing?.sortOrder ?? existingCount,
           );
       if (mounted) Navigator.of(context).pop();
@@ -336,6 +338,44 @@ class _CategoryDialogState extends ConsumerState<_CategoryDialog> {
                 hex: hex,
                 selected: _color == hex,
                 onTap: _busy ? null : () => setState(() => _color = hex),
+              ),
+          ],
+        ),
+        const SizedBox(height: Space.lg),
+        Text('Who makes it', style: AppType.label.copyWith(color: p.textSecondary)),
+        const SizedBox(height: Space.xs),
+        Text('Dockets for this section print at that station.',
+            style: AppType.small.copyWith(color: p.textTertiary)),
+        const SizedBox(height: Space.sm),
+        Row(
+          children: [
+            for (final s in Station.values)
+              Padding(
+                padding: const EdgeInsets.only(right: Space.xs),
+                child: Material(
+                  color: _station == s ? p.brandSubtle : p.surfaceSunken,
+                  borderRadius: Radii.medium,
+                  child: InkWell(
+                    borderRadius: Radii.medium,
+                    onTap: _busy ? null : () => setState(() => _station = s),
+                    child: Container(
+                      height: Hit.control,
+                      padding: const EdgeInsets.symmetric(horizontal: Space.md),
+                      decoration: BoxDecoration(
+                        borderRadius: Radii.medium,
+                        border: Border.all(
+                            color: _station == s ? p.brand : p.border),
+                      ),
+                      child: Center(
+                        widthFactor: 1,
+                        child: Text(s.label,
+                            style: AppType.bodyStrong.copyWith(
+                              color: _station == s ? p.brand : p.textPrimary,
+                            )),
+                      ),
+                    ),
+                  ),
+                ),
               ),
           ],
         ),
