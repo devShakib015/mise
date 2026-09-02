@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using these metadata."
+title: "Mise — self-hosted restaurant management"
+abstract: >-
+  Free, self-hosted restaurant management: point of sale, kitchen display, QR table ordering, payments and reports. Runs on the operator's own machine and keeps working without an internet connection.
+type: software
+authors:
+  - given-names: "K M Shahriar"
+    family-names: "Hossain"
+    orcid: "https://orcid.org/0009-0004-5489-9717"
+repository-code: "https://github.com/devShakib015/mise"
+url: "https://devshakib.jumyn.com/apps"
+license: MIT
+keywords:
+  - "dart"
+  - "flutter"
+  - "free"
+  - "kitchen-display"
+  - "macos"
+  - "offline-first"
+  - "open-source"
+  - "pocketbase"
+  - "point-of-sale"
+  - "pos"
+  - "qr-ordering"
+  - "restaurant"
